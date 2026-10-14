@@ -1,0 +1,26 @@
+{
+  "eligible_record_ids": [],
+  "eligible_records": 0,
+  "excluded_by_role": {
+    "development": 9,
+    "not-for-training": 4
+  },
+  "excluded_by_status": {
+    "pending": 4,
+    "proxy": 9
+  },
+  "excluded_records": 13,
+  "policy": {
+    "allowed_split_roles": [
+      "development"
+    ],
+    "allowed_statuses": [
+      "verified"
+    ],
+    "include_proxy": false
+  },
+  "schema": "pdf-field-lab.trainable-label-view.v2",
+  "source": "data/labels/records.jsonl",
+  "source_records_sha256": "0c5f1eb4090fd69f742bd18d17d3fda4434b027a0344d29f53c4b63192685437",
+  "view_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

@@ -1,0 +1,201 @@
+{
+  "document_family_id": "travel-consent",
+  "review_status": "gold-authored",
+  "source_kind": "controlled-positive-fixture",
+  "targets": [
+    {
+      "id": "travel-consent.traveler-name",
+      "page": 1,
+      "label": "Traveler full name:",
+      "kind": "text",
+      "component": "text-field",
+      "selection_mode": null,
+      "bbox": {
+        "x": 72,
+        "y": 92,
+        "width": 360,
+        "height": 24
+      },
+      "editable_strategy": "acroform-text",
+      "review_required": false,
+      "required": false,
+      "conditional_on": null,
+      "options": [],
+      "evidence": [],
+      "confidence": 1.0,
+      "notes": [
+        "Authored reviewed gold target"
+      ],
+      "input_mode": "single",
+      "max_length": null,
+      "label_entities": [],
+      "status": "accepted"
+    },
+    {
+      "id": "travel-consent.travel-date",
+      "page": 1,
+      "label": "Travel date:",
+      "kind": "date",
+      "component": "date-field",
+      "selection_mode": null,
+      "bbox": {
+        "x": 72,
+        "y": 148,
+        "width": 180,
+        "height": 24
+      },
+      "editable_strategy": "acroform-text",
+      "review_required": false,
+      "required": false,
+      "conditional_on": null,
+      "options": [],
+      "evidence": [],
+      "confidence": 1.0,
+      "notes": [
+        "Authored reviewed gold target"
+      ],
+      "input_mode": "single",
+      "max_length": null,
+      "label_entities": [],
+      "status": "accepted"
+    },
+    {
+      "id": "travel-consent.consent",
+      "page": 1,
+      "label": "I agree to the travel terms:",
+      "kind": "choice",
+      "component": "choice-group",
+      "selection_mode": "checkbox",
+      "bbox": {
+        "x": 72,
+        "y": 204,
+        "width": 18,
+        "height": 18
+      },
+      "editable_strategy": "acroform-checkbox",
+      "review_required": false,
+      "required": false,
+      "conditional_on": null,
+      "options": [],
+      "evidence": [],
+      "confidence": 1.0,
+      "notes": [
+        "Authored reviewed gold target"
+      ],
+      "input_mode": "single",
+      "max_length": null,
+      "label_entities": [],
+      "status": "accepted"
+    },
+    {
+      "id": "travel-consent.travel-notes",
+      "page": 1,
+      "label": "Travel notes:",
+      "kind": "textarea",
+      "component": "text-area",
+      "selection_mode": null,
+      "bbox": {
+        "x": 72,
+        "y": 520,
+        "width": 300,
+        "height": 62
+      },
+      "editable_strategy": "acroform-text",
+      "review_required": false,
+      "required": false,
+      "conditional_on": null,
+      "options": [],
+      "evidence": [],
+      "confidence": 1.0,
+      "notes": [
+        "Authored reviewed gold target"
+      ],
+      "input_mode": "single",
+      "max_length": null,
+      "label_entities": [],
+      "status": "accepted"
+    },
+    {
+      "id": "travel-consent.traveler-photo",
+      "page": 1,
+      "label": "Recent photograph:",
+      "kind": "image",
+      "component": "photo-dropzone",
+      "selection_mode": null,
+      "bbox": {
+        "x": 390,
+        "y": 260,
+        "width": 130,
+        "height": 100
+      },
+      "editable_strategy": "visual-overlay-image",
+      "review_required": false,
+      "required": false,
+      "conditional_on": null,
+      "options": [],
+      "evidence": [],
+      "confidence": 1.0,
+      "notes": [
+        "Authored reviewed gold target"
+      ],
+      "input_mode": "single",
+      "max_length": null,
+      "label_entities": [],
+      "status": "accepted"
+    },
+    {
+      "id": "travel-consent.guardian-signature",
+      "page": 1,
+      "label": "Guardian signature:",
+      "kind": "signature",
+      "component": "signature-pad",
+      "selection_mode": null,
+      "bbox": {
+        "x": 72,
+        "y": 402,
+        "width": 330,
+        "height": 4
+      },
+      "editable_strategy": "visual-overlay-image",
+      "review_required": false,
+      "required": false,
+      "conditional_on": null,
+      "options": [],
+      "evidence": [],
+      "confidence": 1.0,
+      "notes": [
+        "Authored reviewed gold target"
+      ],
+      "input_mode": "single",
+      "max_length": null,
+      "label_entities": [],
+      "status": "accepted"
+    }
+  ],
+  "representations": [
+    {
+      "representation": "flat-vector",
+      "path": "artifacts/goldset/travel-consent/flat-vector.pdf",
+      "source_sha256": "dd9a581bb7e792d53981d1e111f1928b6e7e93a9086129d9adbc4126551b5ffc",
+      "labels": "artifacts/goldset/travel-consent/flat-vector-labels.json",
+      "evaluation": "artifacts/goldset/travel-consent/flat-vector-evaluation.json",
+      "detector": "semantic"
+    },
+    {
+      "representation": "native-widgets",
+      "path": "artifacts/goldset/travel-consent/native-widgets.pdf",
+      "source_sha256": "10445bbdf9bcaab266fe2f20c4ba1e9973e2b13273a310c08a576c2663057ecf",
+      "labels": "artifacts/goldset/travel-consent/native-widgets-labels.json",
+      "evaluation": "artifacts/goldset/travel-consent/native-widgets-evaluation.json",
+      "detector": "native"
+    },
+    {
+      "representation": "image-only",
+      "path": "artifacts/goldset/travel-consent/image-only.pdf",
+      "source_sha256": "437d3e7eefb4ae1206431cc63852766b75956c40d00c77402a6ff5a9e4a00ee2",
+      "labels": "artifacts/goldset/travel-consent/image-only-labels.json",
+      "evaluation": "artifacts/goldset/travel-consent/image-only-evaluation.json",
+      "detector": "raster"
+    }
+  ]
+}

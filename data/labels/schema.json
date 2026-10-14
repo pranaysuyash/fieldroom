@@ -1,0 +1,52 @@
+{
+  "schema": "pdf-field-lab.label-repository.v1",
+  "record_required": [
+    "id",
+    "family_id",
+    "source",
+    "provenance",
+    "annotation",
+    "split"
+  ],
+  "source": {
+    "required": ["sha256", "page_count", "page_sizes", "locator_kind", "privacy_class"],
+    "locator_kinds": ["local-path", "project-artifact", "sibling-read-only", "collection-snapshot"],
+    "privacy_classes": ["controlled", "user-sensitive", "collection-metadata"]
+  },
+  "provenance": {
+    "required": ["source_kind", "lineage", "license"],
+    "license_policy": "Every record declares whether its source is project-authored, user-supplied, inherited, or not recorded. Missing license metadata is never training-eligible."
+  },
+  "annotation": {
+    "statuses": ["pending", "verified", "rejected", "proxy"],
+    "target_classes": [
+      "text",
+      "textarea",
+      "date",
+      "number",
+      "identifier",
+      "choice",
+      "image",
+      "signature",
+      "composite",
+      "abstain",
+      "existing-signature-ink",
+      "missing-signature-slot"
+    ],
+    "required_target_keys": ["id", "page", "class", "bbox", "expected"]
+  },
+  "split": {
+    "roles": ["development", "validation", "locked-test", "holdout", "not-for-training"],
+    "default_training_status": ["verified"],
+    "family_isolation": true
+  },
+  "privacy": {
+    "forbidden_fields": [
+      "raw_pdf_bytes",
+      "completed_values",
+      "photo_pixels",
+      "signature_pixels",
+      "unredacted_signer_names"
+    ]
+  }
+}

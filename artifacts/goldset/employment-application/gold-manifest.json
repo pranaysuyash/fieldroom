@@ -1,0 +1,201 @@
+{
+  "document_family_id": "employment-application",
+  "review_status": "gold-authored",
+  "source_kind": "controlled-positive-fixture",
+  "targets": [
+    {
+      "id": "employment-application.applicant-name",
+      "page": 1,
+      "label": "Applicant name:",
+      "kind": "text",
+      "component": "text-field",
+      "selection_mode": null,
+      "bbox": {
+        "x": 72,
+        "y": 100,
+        "width": 260,
+        "height": 24
+      },
+      "editable_strategy": "acroform-text",
+      "review_required": false,
+      "required": false,
+      "conditional_on": null,
+      "options": [],
+      "evidence": [],
+      "confidence": 1.0,
+      "notes": [
+        "Authored reviewed gold target"
+      ],
+      "input_mode": "single",
+      "max_length": null,
+      "label_entities": [],
+      "status": "accepted"
+    },
+    {
+      "id": "employment-application.birth-date",
+      "page": 1,
+      "label": "Date of birth:",
+      "kind": "date",
+      "component": "date-field",
+      "selection_mode": null,
+      "bbox": {
+        "x": 72,
+        "y": 154,
+        "width": 150,
+        "height": 24
+      },
+      "editable_strategy": "acroform-text",
+      "review_required": false,
+      "required": false,
+      "conditional_on": null,
+      "options": [],
+      "evidence": [],
+      "confidence": 1.0,
+      "notes": [
+        "Authored reviewed gold target"
+      ],
+      "input_mode": "single",
+      "max_length": null,
+      "label_entities": [],
+      "status": "accepted"
+    },
+    {
+      "id": "employment-application.work-authorized",
+      "page": 1,
+      "label": "Agree to work terms:",
+      "kind": "choice",
+      "component": "choice-group",
+      "selection_mode": "checkbox",
+      "bbox": {
+        "x": 72,
+        "y": 208,
+        "width": 18,
+        "height": 18
+      },
+      "editable_strategy": "acroform-checkbox",
+      "review_required": false,
+      "required": false,
+      "conditional_on": null,
+      "options": [],
+      "evidence": [],
+      "confidence": 1.0,
+      "notes": [
+        "Authored reviewed gold target"
+      ],
+      "input_mode": "single",
+      "max_length": null,
+      "label_entities": [],
+      "status": "accepted"
+    },
+    {
+      "id": "employment-application.application-notes",
+      "page": 1,
+      "label": "Additional comments:",
+      "kind": "textarea",
+      "component": "text-area",
+      "selection_mode": null,
+      "bbox": {
+        "x": 72,
+        "y": 510,
+        "width": 300,
+        "height": 62
+      },
+      "editable_strategy": "acroform-text",
+      "review_required": false,
+      "required": false,
+      "conditional_on": null,
+      "options": [],
+      "evidence": [],
+      "confidence": 1.0,
+      "notes": [
+        "Authored reviewed gold target"
+      ],
+      "input_mode": "single",
+      "max_length": null,
+      "label_entities": [],
+      "status": "accepted"
+    },
+    {
+      "id": "employment-application.passport-photo",
+      "page": 1,
+      "label": "Passport photo:",
+      "kind": "image",
+      "component": "photo-dropzone",
+      "selection_mode": null,
+      "bbox": {
+        "x": 380,
+        "y": 360,
+        "width": 140,
+        "height": 110
+      },
+      "editable_strategy": "visual-overlay-image",
+      "review_required": false,
+      "required": false,
+      "conditional_on": null,
+      "options": [],
+      "evidence": [],
+      "confidence": 1.0,
+      "notes": [
+        "Authored reviewed gold target"
+      ],
+      "input_mode": "single",
+      "max_length": null,
+      "label_entities": [],
+      "status": "accepted"
+    },
+    {
+      "id": "employment-application.applicant-signature",
+      "page": 1,
+      "label": "Applicant signature:",
+      "kind": "signature",
+      "component": "signature-pad",
+      "selection_mode": null,
+      "bbox": {
+        "x": 72,
+        "y": 302,
+        "width": 310,
+        "height": 4
+      },
+      "editable_strategy": "visual-overlay-image",
+      "review_required": false,
+      "required": false,
+      "conditional_on": null,
+      "options": [],
+      "evidence": [],
+      "confidence": 1.0,
+      "notes": [
+        "Authored reviewed gold target"
+      ],
+      "input_mode": "single",
+      "max_length": null,
+      "label_entities": [],
+      "status": "accepted"
+    }
+  ],
+  "representations": [
+    {
+      "representation": "flat-vector",
+      "path": "artifacts/goldset/employment-application/flat-vector.pdf",
+      "source_sha256": "af4b9587c3e2fd8ed59170f28f22f7e86c48e39e4e9433491a6b61e52491b669",
+      "labels": "artifacts/goldset/employment-application/flat-vector-labels.json",
+      "evaluation": "artifacts/goldset/employment-application/flat-vector-evaluation.json",
+      "detector": "semantic"
+    },
+    {
+      "representation": "native-widgets",
+      "path": "artifacts/goldset/employment-application/native-widgets.pdf",
+      "source_sha256": "635a2cb9333a914c3381a28d684041334ee0f45c3edf49bfddff413a1edd1f87",
+      "labels": "artifacts/goldset/employment-application/native-widgets-labels.json",
+      "evaluation": "artifacts/goldset/employment-application/native-widgets-evaluation.json",
+      "detector": "native"
+    },
+    {
+      "representation": "image-only",
+      "path": "artifacts/goldset/employment-application/image-only.pdf",
+      "source_sha256": "d310bbf7bc0439ac3557eddbc266f3c3ebf09e5b3115ef518bae39c58a048378",
+      "labels": "artifacts/goldset/employment-application/image-only-labels.json",
+      "evaluation": "artifacts/goldset/employment-application/image-only-evaluation.json",
+      "detector": "raster"
+    }
+  ]
+}

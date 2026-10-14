@@ -1,0 +1,17 @@
+{
+  "schema": "pdf-field-lab.label-splits.v1",
+  "family_isolation": true,
+  "rules": [
+    "All derivatives of one source or template family share one split.",
+    "Pending, rejected, and proxy annotations are not training inputs.",
+    "Locked-test records are immutable after review freeze.",
+    "Real user-sensitive records require explicit local review before training.",
+    "Controlled authored fixtures measure plumbing and calibration, not real-world generalization."
+  ],
+  "roles": {
+    "controlled-gold": "development",
+    "real-user-probe": "not-for-training",
+    "system-corpus-snapshot": "not-for-training",
+    "sibling-calibration": "not-for-training"
+  }
+}

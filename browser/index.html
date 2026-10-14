@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Fieldroom, PDF editing with structure</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='10' fill='%23176b62'/%3E%3Ctext x='16' y='23' text-anchor='middle' font-family='Georgia' font-size='22' fill='white'%3EF%3C/text%3E%3C/svg%3E">
+    <link rel="stylesheet" href="/assets/styles.css">
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="/"><span class="brand-mark">F</span><span>Fieldroom</span></a>
+      <div class="topbar-meta"><span class="status-dot"></span><span>Local workspace</span></div>
+    </header>
+    <main id="app" class="shell">
+      <section id="welcome" class="welcome panel">
+        <div class="eyebrow">PDF to editable form</div>
+        <h1>Make any form feel like a form.</h1>
+        <p class="lede">Drop in a PDF. Fieldroom finds text areas, choices, photo slots, and signatures, then gives you a calm reviewable editing surface.</p>
+        <label id="drop-zone" class="drop-zone" for="pdf-input">
+          <input id="pdf-input" type="file" accept="application/pdf,.pdf" hidden>
+          <span class="drop-icon">↑</span>
+          <span class="drop-title">Drop a PDF here</span>
+          <span class="drop-subtitle">or click to browse, processed locally</span>
+        </label>
+        <div id="upload-error" class="error hidden"></div>
+        <div class="trust-row"><span>Private by default</span><span>Review before export</span><span>Original stays unchanged</span></div>
+      </section>
+
+      <section id="workspace" class="workspace hidden">
+        <aside class="sidebar panel">
+          <div class="sidebar-head"><div><div class="eyebrow">Working on</div><h2 id="file-name">Document</h2></div><button id="new-document" class="ghost-button">New</button></div>
+          <div class="progress-wrap"><div class="progress-label"><span id="completion-label">0% reviewed</span><span id="target-count">0 targets</span></div><div class="progress"><span id="progress-bar"></span></div></div>
+          <div id="signature-audit" class="signature-audit hidden" aria-live="polite"></div>
+          <div class="field-index-head"><div><div class="eyebrow">Field map</div><h3>Detected fields</h3></div><span id="field-index-count" class="count-badge">0</span></div>
+          <div id="field-summary" class="field-summary" aria-label="Detected field types"></div>
+          <div id="field-filters" class="field-filters" role="tablist" aria-label="Filter fields"></div>
+          <div id="field-list" class="field-list"></div>
+          <div class="page-index-head"><div class="eyebrow">Document</div><h3>Pages</h3></div>
+          <div class="page-list" id="page-list"></div>
+          <div class="sidebar-foot"><div class="legend"><span class="legend-swatch detected"></span>Detected target</div><div class="legend"><span class="legend-swatch review"></span>Needs review before export</div></div>
+        </aside>
+
+        <section class="canvas-column">
+          <div class="canvas-toolbar"><div><span class="eyebrow">Document canvas</span><h2 id="page-title">Page 1</h2></div><div class="toolbar-actions"><button id="add-target" class="secondary-button">＋ Add target</button><button id="zoom-out" class="icon-button">−</button><span id="zoom-label">100%</span><button id="zoom-in" class="icon-button">+</button><button id="export-button" class="primary-button">Export PDF</button></div></div>
+          <div id="canvas-scroll" class="canvas-scroll"><div id="page-stage" class="page-stage"><img id="page-image" alt="PDF page preview"><div id="target-layer"></div><div id="inline-editor-layer"></div></div></div>
+          <div id="canvas-status" class="canvas-status">Select a highlighted region to type directly on the page.</div>
+        </section>
+
+        <aside class="inspector panel">
+          <div id="empty-inspector" class="empty-inspector"><span class="inspector-icon">✦</span><h3>Review your fields</h3><p>Select a highlighted region and type directly on the page. The inspector explains the field and keeps detailed controls close by.</p></div>
+          <div id="field-inspector" class="hidden">
+            <div class="inspector-head"><div><div class="eyebrow">Field inspector</div><h2 id="field-label">Field</h2></div><span id="field-kind" class="kind-pill">TEXT</span></div>
+            <label class="control-label" for="field-label-input">Name shown to you</label>
+            <input id="field-label-input" class="control-input" type="text" maxlength="240" autocomplete="off">
+            <label class="control-label" for="field-type-select">Field type</label>
+            <select id="field-type-select" class="control-input"></select>
+            <p id="field-description" class="field-description"></p>
+            <div class="field-entities-block"><span class="control-label">Detected label intent</span><div id="field-entities" class="field-entities"></div></div>
+            <div id="field-control"></div>
+            <div class="geometry-editor"><div class="geometry-head"><span>Position and size</span><small>PDF points</small></div><div class="geometry-grid"><label>X<input id="field-x" type="number" min="0" step="0.1"></label><label>Y<input id="field-y" type="number" min="0" step="0.1"></label><label>Width<input id="field-width" type="number" min="4" step="0.1"></label><label>Height<input id="field-height" type="number" min="4" step="0.1"></label></div></div>
+            <div class="field-meta"><div><span>Type</span><strong id="field-type">—</strong></div><div><span>Confidence</span><strong id="field-confidence">—</strong></div><div><span>Source</span><strong id="field-source">—</strong></div></div>
+            <label class="check-row"><input id="field-confirmed" type="checkbox"><span>Mark this target reviewed</span></label>
+            <button id="reject-target" class="reject-button" type="button">Reject target</button>
+            <div id="field-note" class="field-note"></div>
+          </div>
+        </aside>
+      </section>
+      <div id="toast" class="toast hidden"></div>
+    </main>
+    <script src="/assets/app.js" defer></script>
+  </body>
+</html>

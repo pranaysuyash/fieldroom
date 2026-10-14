@@ -1,0 +1,13 @@
+{
+  "F6-01": "OFFICE-EXAMPLE",
+  "F6-07": "PRANAY EXAMPLE",
+  "F6-12": "9999999999",
+  "F6-13": "example@example.invalid",
+  "F6-15": "male",
+  "F6-16": "01/01/1990",
+  "F6-25": {
+    "name": "Example Relative",
+    "relationship": "parent",
+    "epic": "ABC1234567"
+  }
+}

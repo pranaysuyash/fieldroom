@@ -1,0 +1,112 @@
+{
+  "schema": "pdf-field-lab.gold-labels.v1",
+  "sourceSha256": "d672ff0f6dd27b7a4d1cf51b68d917e17a7a142a6aa612f1a2241856d92c715b",
+  "policy": {
+    "positiveMatchIoU": 0.25
+  },
+  "cases": [
+    {
+      "id": "vendor-onboarding.company-name",
+      "pageIndex": 0,
+      "class": "text",
+      "expected": "detected",
+      "hardNegative": false,
+      "requiredFieldType": "text",
+      "expectedLabel": "Company name:",
+      "target": {
+        "x": 72,
+        "y": 672.0,
+        "width": 260,
+        "height": 24
+      }
+    },
+    {
+      "id": "vendor-onboarding.contact-email",
+      "pageIndex": 0,
+      "class": "text",
+      "expected": "detected",
+      "hardNegative": false,
+      "requiredFieldType": "text",
+      "expectedLabel": "Contact email:",
+      "target": {
+        "x": 72,
+        "y": 618.0,
+        "width": 260,
+        "height": 24
+      }
+    },
+    {
+      "id": "vendor-onboarding.accept-terms",
+      "pageIndex": 0,
+      "class": "checkbox",
+      "expected": "detected",
+      "hardNegative": false,
+      "requiredFieldType": "choice",
+      "expectedLabel": "Accept terms:",
+      "target": {
+        "x": 72,
+        "y": 570.0,
+        "width": 18,
+        "height": 18
+      }
+    },
+    {
+      "id": "vendor-onboarding.business-details",
+      "pageIndex": 0,
+      "class": "textarea",
+      "expected": "detected",
+      "hardNegative": false,
+      "requiredFieldType": "textarea",
+      "expectedLabel": "Business details:",
+      "target": {
+        "x": 72,
+        "y": 220.0,
+        "width": 300,
+        "height": 62
+      }
+    },
+    {
+      "id": "vendor-onboarding.company-logo",
+      "pageIndex": 0,
+      "class": "image",
+      "expected": "detected",
+      "hardNegative": false,
+      "requiredFieldType": "image",
+      "expectedLabel": "Company logo:",
+      "target": {
+        "x": 400,
+        "y": 472.0,
+        "width": 120,
+        "height": 90
+      }
+    },
+    {
+      "id": "vendor-onboarding.authorized-signature",
+      "pageIndex": 0,
+      "class": "signature",
+      "expected": "detected",
+      "hardNegative": false,
+      "requiredFieldType": "signature",
+      "expectedLabel": "Authorized signature:",
+      "target": {
+        "x": 72,
+        "y": 486.0,
+        "width": 300,
+        "height": 4
+      }
+    },
+    {
+      "id": "vendor-onboarding.hard-negative-footer-divider",
+      "pageIndex": 0,
+      "class": "underline",
+      "expected": "abstain",
+      "hardNegative": true,
+      "target": {
+        "x": 72,
+        "y": 319.0,
+        "width": 468,
+        "height": 3
+      }
+    }
+  ]
+}

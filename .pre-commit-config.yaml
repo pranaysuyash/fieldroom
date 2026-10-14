@@ -1,0 +1,19 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.7.0
+    hooks:
+      - id: check-toml
+      - id: check-yaml
+      - id: check-added-large-files
+        args: ["--maxkb=10240"]
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-merge-conflict
+  - repo: local
+    hooks:
+      - id: project-gate
+        name: project gate
+        entry: ./scripts/gate.sh
+        language: script
+        pass_filenames: false
+        stages: [pre-commit]

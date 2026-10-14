@@ -1,0 +1,112 @@
+{
+  "schema": "pdf-field-lab.gold-labels.v1",
+  "sourceSha256": "af4b9587c3e2fd8ed59170f28f22f7e86c48e39e4e9433491a6b61e52491b669",
+  "policy": {
+    "positiveMatchIoU": 0.25
+  },
+  "cases": [
+    {
+      "id": "employment-application.applicant-name",
+      "pageIndex": 0,
+      "class": "text",
+      "expected": "detected",
+      "hardNegative": false,
+      "requiredFieldType": "text",
+      "expectedLabel": "Applicant name:",
+      "target": {
+        "x": 72,
+        "y": 668.0,
+        "width": 260,
+        "height": 24
+      }
+    },
+    {
+      "id": "employment-application.birth-date",
+      "pageIndex": 0,
+      "class": "date",
+      "expected": "detected",
+      "hardNegative": false,
+      "requiredFieldType": "date",
+      "expectedLabel": "Date of birth:",
+      "target": {
+        "x": 72,
+        "y": 614.0,
+        "width": 150,
+        "height": 24
+      }
+    },
+    {
+      "id": "employment-application.work-authorized",
+      "pageIndex": 0,
+      "class": "checkbox",
+      "expected": "detected",
+      "hardNegative": false,
+      "requiredFieldType": "choice",
+      "expectedLabel": "Agree to work terms:",
+      "target": {
+        "x": 72,
+        "y": 566.0,
+        "width": 18,
+        "height": 18
+      }
+    },
+    {
+      "id": "employment-application.application-notes",
+      "pageIndex": 0,
+      "class": "textarea",
+      "expected": "detected",
+      "hardNegative": false,
+      "requiredFieldType": "textarea",
+      "expectedLabel": "Additional comments:",
+      "target": {
+        "x": 72,
+        "y": 220.0,
+        "width": 300,
+        "height": 62
+      }
+    },
+    {
+      "id": "employment-application.passport-photo",
+      "pageIndex": 0,
+      "class": "image",
+      "expected": "detected",
+      "hardNegative": false,
+      "requiredFieldType": "image",
+      "expectedLabel": "Passport photo:",
+      "target": {
+        "x": 380,
+        "y": 322.0,
+        "width": 140,
+        "height": 110
+      }
+    },
+    {
+      "id": "employment-application.applicant-signature",
+      "pageIndex": 0,
+      "class": "signature",
+      "expected": "detected",
+      "hardNegative": false,
+      "requiredFieldType": "signature",
+      "expectedLabel": "Applicant signature:",
+      "target": {
+        "x": 72,
+        "y": 486.0,
+        "width": 310,
+        "height": 4
+      }
+    },
+    {
+      "id": "employment-application.hard-negative-footer-divider",
+      "pageIndex": 0,
+      "class": "underline",
+      "expected": "abstain",
+      "hardNegative": true,
+      "target": {
+        "x": 72,
+        "y": 319.0,
+        "width": 468,
+        "height": 3
+      }
+    }
+  ]
+}

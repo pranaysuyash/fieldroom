@@ -1,0 +1,610 @@
+{
+  "schema": "pdf-field-lab.goldset.v1",
+  "review_status": "gold-authored-controlled-not-human-real-world",
+  "families": [
+    {
+      "document_family_id": "employment-application",
+      "review_status": "gold-authored",
+      "source_kind": "controlled-positive-fixture",
+      "targets": [
+        {
+          "id": "employment-application.applicant-name",
+          "page": 1,
+          "label": "Applicant name:",
+          "kind": "text",
+          "component": "text-field",
+          "selection_mode": null,
+          "bbox": {
+            "x": 72,
+            "y": 100,
+            "width": 260,
+            "height": 24
+          },
+          "editable_strategy": "acroform-text",
+          "review_required": false,
+          "required": false,
+          "conditional_on": null,
+          "options": [],
+          "evidence": [],
+          "confidence": 1.0,
+          "notes": [
+            "Authored reviewed gold target"
+          ],
+          "input_mode": "single",
+          "max_length": null,
+          "label_entities": [],
+          "status": "accepted"
+        },
+        {
+          "id": "employment-application.birth-date",
+          "page": 1,
+          "label": "Date of birth:",
+          "kind": "date",
+          "component": "date-field",
+          "selection_mode": null,
+          "bbox": {
+            "x": 72,
+            "y": 154,
+            "width": 150,
+            "height": 24
+          },
+          "editable_strategy": "acroform-text",
+          "review_required": false,
+          "required": false,
+          "conditional_on": null,
+          "options": [],
+          "evidence": [],
+          "confidence": 1.0,
+          "notes": [
+            "Authored reviewed gold target"
+          ],
+          "input_mode": "single",
+          "max_length": null,
+          "label_entities": [],
+          "status": "accepted"
+        },
+        {
+          "id": "employment-application.work-authorized",
+          "page": 1,
+          "label": "Agree to work terms:",
+          "kind": "choice",
+          "component": "choice-group",
+          "selection_mode": "checkbox",
+          "bbox": {
+            "x": 72,
+            "y": 208,
+            "width": 18,
+            "height": 18
+          },
+          "editable_strategy": "acroform-checkbox",
+          "review_required": false,
+          "required": false,
+          "conditional_on": null,
+          "options": [],
+          "evidence": [],
+          "confidence": 1.0,
+          "notes": [
+            "Authored reviewed gold target"
+          ],
+          "input_mode": "single",
+          "max_length": null,
+          "label_entities": [],
+          "status": "accepted"
+        },
+        {
+          "id": "employment-application.application-notes",
+          "page": 1,
+          "label": "Additional comments:",
+          "kind": "textarea",
+          "component": "text-area",
+          "selection_mode": null,
+          "bbox": {
+            "x": 72,
+            "y": 510,
+            "width": 300,
+            "height": 62
+          },
+          "editable_strategy": "acroform-text",
+          "review_required": false,
+          "required": false,
+          "conditional_on": null,
+          "options": [],
+          "evidence": [],
+          "confidence": 1.0,
+          "notes": [
+            "Authored reviewed gold target"
+          ],
+          "input_mode": "single",
+          "max_length": null,
+          "label_entities": [],
+          "status": "accepted"
+        },
+        {
+          "id": "employment-application.passport-photo",
+          "page": 1,
+          "label": "Passport photo:",
+          "kind": "image",
+          "component": "photo-dropzone",
+          "selection_mode": null,
+          "bbox": {
+            "x": 380,
+            "y": 360,
+            "width": 140,
+            "height": 110
+          },
+          "editable_strategy": "visual-overlay-image",
+          "review_required": false,
+          "required": false,
+          "conditional_on": null,
+          "options": [],
+          "evidence": [],
+          "confidence": 1.0,
+          "notes": [
+            "Authored reviewed gold target"
+          ],
+          "input_mode": "single",
+          "max_length": null,
+          "label_entities": [],
+          "status": "accepted"
+        },
+        {
+          "id": "employment-application.applicant-signature",
+          "page": 1,
+          "label": "Applicant signature:",
+          "kind": "signature",
+          "component": "signature-pad",
+          "selection_mode": null,
+          "bbox": {
+            "x": 72,
+            "y": 302,
+            "width": 310,
+            "height": 4
+          },
+          "editable_strategy": "visual-overlay-image",
+          "review_required": false,
+          "required": false,
+          "conditional_on": null,
+          "options": [],
+          "evidence": [],
+          "confidence": 1.0,
+          "notes": [
+            "Authored reviewed gold target"
+          ],
+          "input_mode": "single",
+          "max_length": null,
+          "label_entities": [],
+          "status": "accepted"
+        }
+      ],
+      "representations": [
+        {
+          "representation": "flat-vector",
+          "path": "artifacts/goldset/employment-application/flat-vector.pdf",
+          "source_sha256": "af4b9587c3e2fd8ed59170f28f22f7e86c48e39e4e9433491a6b61e52491b669",
+          "labels": "artifacts/goldset/employment-application/flat-vector-labels.json",
+          "evaluation": "artifacts/goldset/employment-application/flat-vector-evaluation.json",
+          "detector": "semantic"
+        },
+        {
+          "representation": "native-widgets",
+          "path": "artifacts/goldset/employment-application/native-widgets.pdf",
+          "source_sha256": "635a2cb9333a914c3381a28d684041334ee0f45c3edf49bfddff413a1edd1f87",
+          "labels": "artifacts/goldset/employment-application/native-widgets-labels.json",
+          "evaluation": "artifacts/goldset/employment-application/native-widgets-evaluation.json",
+          "detector": "native"
+        },
+        {
+          "representation": "image-only",
+          "path": "artifacts/goldset/employment-application/image-only.pdf",
+          "source_sha256": "d310bbf7bc0439ac3557eddbc266f3c3ebf09e5b3115ef518bae39c58a048378",
+          "labels": "artifacts/goldset/employment-application/image-only-labels.json",
+          "evaluation": "artifacts/goldset/employment-application/image-only-evaluation.json",
+          "detector": "raster"
+        }
+      ]
+    },
+    {
+      "document_family_id": "travel-consent",
+      "review_status": "gold-authored",
+      "source_kind": "controlled-positive-fixture",
+      "targets": [
+        {
+          "id": "travel-consent.traveler-name",
+          "page": 1,
+          "label": "Traveler full name:",
+          "kind": "text",
+          "component": "text-field",
+          "selection_mode": null,
+          "bbox": {
+            "x": 72,
+            "y": 92,
+            "width": 360,
+            "height": 24
+          },
+          "editable_strategy": "acroform-text",
+          "review_required": false,
+          "required": false,
+          "conditional_on": null,
+          "options": [],
+          "evidence": [],
+          "confidence": 1.0,
+          "notes": [
+            "Authored reviewed gold target"
+          ],
+          "input_mode": "single",
+          "max_length": null,
+          "label_entities": [],
+          "status": "accepted"
+        },
+        {
+          "id": "travel-consent.travel-date",
+          "page": 1,
+          "label": "Travel date:",
+          "kind": "date",
+          "component": "date-field",
+          "selection_mode": null,
+          "bbox": {
+            "x": 72,
+            "y": 148,
+            "width": 180,
+            "height": 24
+          },
+          "editable_strategy": "acroform-text",
+          "review_required": false,
+          "required": false,
+          "conditional_on": null,
+          "options": [],
+          "evidence": [],
+          "confidence": 1.0,
+          "notes": [
+            "Authored reviewed gold target"
+          ],
+          "input_mode": "single",
+          "max_length": null,
+          "label_entities": [],
+          "status": "accepted"
+        },
+        {
+          "id": "travel-consent.consent",
+          "page": 1,
+          "label": "I agree to the travel terms:",
+          "kind": "choice",
+          "component": "choice-group",
+          "selection_mode": "checkbox",
+          "bbox": {
+            "x": 72,
+            "y": 204,
+            "width": 18,
+            "height": 18
+          },
+          "editable_strategy": "acroform-checkbox",
+          "review_required": false,
+          "required": false,
+          "conditional_on": null,
+          "options": [],
+          "evidence": [],
+          "confidence": 1.0,
+          "notes": [
+            "Authored reviewed gold target"
+          ],
+          "input_mode": "single",
+          "max_length": null,
+          "label_entities": [],
+          "status": "accepted"
+        },
+        {
+          "id": "travel-consent.travel-notes",
+          "page": 1,
+          "label": "Travel notes:",
+          "kind": "textarea",
+          "component": "text-area",
+          "selection_mode": null,
+          "bbox": {
+            "x": 72,
+            "y": 520,
+            "width": 300,
+            "height": 62
+          },
+          "editable_strategy": "acroform-text",
+          "review_required": false,
+          "required": false,
+          "conditional_on": null,
+          "options": [],
+          "evidence": [],
+          "confidence": 1.0,
+          "notes": [
+            "Authored reviewed gold target"
+          ],
+          "input_mode": "single",
+          "max_length": null,
+          "label_entities": [],
+          "status": "accepted"
+        },
+        {
+          "id": "travel-consent.traveler-photo",
+          "page": 1,
+          "label": "Recent photograph:",
+          "kind": "image",
+          "component": "photo-dropzone",
+          "selection_mode": null,
+          "bbox": {
+            "x": 390,
+            "y": 260,
+            "width": 130,
+            "height": 100
+          },
+          "editable_strategy": "visual-overlay-image",
+          "review_required": false,
+          "required": false,
+          "conditional_on": null,
+          "options": [],
+          "evidence": [],
+          "confidence": 1.0,
+          "notes": [
+            "Authored reviewed gold target"
+          ],
+          "input_mode": "single",
+          "max_length": null,
+          "label_entities": [],
+          "status": "accepted"
+        },
+        {
+          "id": "travel-consent.guardian-signature",
+          "page": 1,
+          "label": "Guardian signature:",
+          "kind": "signature",
+          "component": "signature-pad",
+          "selection_mode": null,
+          "bbox": {
+            "x": 72,
+            "y": 402,
+            "width": 330,
+            "height": 4
+          },
+          "editable_strategy": "visual-overlay-image",
+          "review_required": false,
+          "required": false,
+          "conditional_on": null,
+          "options": [],
+          "evidence": [],
+          "confidence": 1.0,
+          "notes": [
+            "Authored reviewed gold target"
+          ],
+          "input_mode": "single",
+          "max_length": null,
+          "label_entities": [],
+          "status": "accepted"
+        }
+      ],
+      "representations": [
+        {
+          "representation": "flat-vector",
+          "path": "artifacts/goldset/travel-consent/flat-vector.pdf",
+          "source_sha256": "dd9a581bb7e792d53981d1e111f1928b6e7e93a9086129d9adbc4126551b5ffc",
+          "labels": "artifacts/goldset/travel-consent/flat-vector-labels.json",
+          "evaluation": "artifacts/goldset/travel-consent/flat-vector-evaluation.json",
+          "detector": "semantic"
+        },
+        {
+          "representation": "native-widgets",
+          "path": "artifacts/goldset/travel-consent/native-widgets.pdf",
+          "source_sha256": "10445bbdf9bcaab266fe2f20c4ba1e9973e2b13273a310c08a576c2663057ecf",
+          "labels": "artifacts/goldset/travel-consent/native-widgets-labels.json",
+          "evaluation": "artifacts/goldset/travel-consent/native-widgets-evaluation.json",
+          "detector": "native"
+        },
+        {
+          "representation": "image-only",
+          "path": "artifacts/goldset/travel-consent/image-only.pdf",
+          "source_sha256": "437d3e7eefb4ae1206431cc63852766b75956c40d00c77402a6ff5a9e4a00ee2",
+          "labels": "artifacts/goldset/travel-consent/image-only-labels.json",
+          "evaluation": "artifacts/goldset/travel-consent/image-only-evaluation.json",
+          "detector": "raster"
+        }
+      ]
+    },
+    {
+      "document_family_id": "vendor-onboarding",
+      "review_status": "gold-authored",
+      "source_kind": "controlled-positive-fixture",
+      "targets": [
+        {
+          "id": "vendor-onboarding.company-name",
+          "page": 1,
+          "label": "Company name:",
+          "kind": "text",
+          "component": "text-field",
+          "selection_mode": null,
+          "bbox": {
+            "x": 72,
+            "y": 96,
+            "width": 260,
+            "height": 24
+          },
+          "editable_strategy": "acroform-text",
+          "review_required": false,
+          "required": false,
+          "conditional_on": null,
+          "options": [],
+          "evidence": [],
+          "confidence": 1.0,
+          "notes": [
+            "Authored reviewed gold target"
+          ],
+          "input_mode": "single",
+          "max_length": null,
+          "label_entities": [],
+          "status": "accepted"
+        },
+        {
+          "id": "vendor-onboarding.contact-email",
+          "page": 1,
+          "label": "Contact email:",
+          "kind": "text",
+          "component": "text-field",
+          "selection_mode": null,
+          "bbox": {
+            "x": 72,
+            "y": 150,
+            "width": 260,
+            "height": 24
+          },
+          "editable_strategy": "acroform-text",
+          "review_required": false,
+          "required": false,
+          "conditional_on": null,
+          "options": [],
+          "evidence": [],
+          "confidence": 1.0,
+          "notes": [
+            "Authored reviewed gold target"
+          ],
+          "input_mode": "single",
+          "max_length": null,
+          "label_entities": [],
+          "status": "accepted"
+        },
+        {
+          "id": "vendor-onboarding.accept-terms",
+          "page": 1,
+          "label": "Accept terms:",
+          "kind": "choice",
+          "component": "choice-group",
+          "selection_mode": "checkbox",
+          "bbox": {
+            "x": 72,
+            "y": 204,
+            "width": 18,
+            "height": 18
+          },
+          "editable_strategy": "acroform-checkbox",
+          "review_required": false,
+          "required": false,
+          "conditional_on": null,
+          "options": [],
+          "evidence": [],
+          "confidence": 1.0,
+          "notes": [
+            "Authored reviewed gold target"
+          ],
+          "input_mode": "single",
+          "max_length": null,
+          "label_entities": [],
+          "status": "accepted"
+        },
+        {
+          "id": "vendor-onboarding.business-details",
+          "page": 1,
+          "label": "Business details:",
+          "kind": "textarea",
+          "component": "text-area",
+          "selection_mode": null,
+          "bbox": {
+            "x": 72,
+            "y": 510,
+            "width": 300,
+            "height": 62
+          },
+          "editable_strategy": "acroform-text",
+          "review_required": false,
+          "required": false,
+          "conditional_on": null,
+          "options": [],
+          "evidence": [],
+          "confidence": 1.0,
+          "notes": [
+            "Authored reviewed gold target"
+          ],
+          "input_mode": "single",
+          "max_length": null,
+          "label_entities": [],
+          "status": "accepted"
+        },
+        {
+          "id": "vendor-onboarding.company-logo",
+          "page": 1,
+          "label": "Company logo:",
+          "kind": "image",
+          "component": "photo-dropzone",
+          "selection_mode": null,
+          "bbox": {
+            "x": 400,
+            "y": 230,
+            "width": 120,
+            "height": 90
+          },
+          "editable_strategy": "visual-overlay-image",
+          "review_required": false,
+          "required": false,
+          "conditional_on": null,
+          "options": [],
+          "evidence": [],
+          "confidence": 1.0,
+          "notes": [
+            "Authored reviewed gold target"
+          ],
+          "input_mode": "single",
+          "max_length": null,
+          "label_entities": [],
+          "status": "accepted"
+        },
+        {
+          "id": "vendor-onboarding.authorized-signature",
+          "page": 1,
+          "label": "Authorized signature:",
+          "kind": "signature",
+          "component": "signature-pad",
+          "selection_mode": null,
+          "bbox": {
+            "x": 72,
+            "y": 302,
+            "width": 300,
+            "height": 4
+          },
+          "editable_strategy": "visual-overlay-image",
+          "review_required": false,
+          "required": false,
+          "conditional_on": null,
+          "options": [],
+          "evidence": [],
+          "confidence": 1.0,
+          "notes": [
+            "Authored reviewed gold target"
+          ],
+          "input_mode": "single",
+          "max_length": null,
+          "label_entities": [],
+          "status": "accepted"
+        }
+      ],
+      "representations": [
+        {
+          "representation": "flat-vector",
+          "path": "artifacts/goldset/vendor-onboarding/flat-vector.pdf",
+          "source_sha256": "4b204bb39ac56edb5323958e11fd4c5ccbbe78cdab1b8446cabc7466466c0e1c",
+          "labels": "artifacts/goldset/vendor-onboarding/flat-vector-labels.json",
+          "evaluation": "artifacts/goldset/vendor-onboarding/flat-vector-evaluation.json",
+          "detector": "semantic"
+        },
+        {
+          "representation": "native-widgets",
+          "path": "artifacts/goldset/vendor-onboarding/native-widgets.pdf",
+          "source_sha256": "e2e079a2ab9ce68bf62a7ae5259a170c1a5ca22467df4b06cadf289c26e88e1f",
+          "labels": "artifacts/goldset/vendor-onboarding/native-widgets-labels.json",
+          "evaluation": "artifacts/goldset/vendor-onboarding/native-widgets-evaluation.json",
+          "detector": "native"
+        },
+        {
+          "representation": "image-only",
+          "path": "artifacts/goldset/vendor-onboarding/image-only.pdf",
+          "source_sha256": "d672ff0f6dd27b7a4d1cf51b68d917e17a7a142a6aa612f1a2241856d92c715b",
+          "labels": "artifacts/goldset/vendor-onboarding/image-only-labels.json",
+          "evaluation": "artifacts/goldset/vendor-onboarding/image-only-evaluation.json",
+          "detector": "raster"
+        }
+      ]
+    }
+  ],
+  "visual_contact_sheet": "artifacts/goldset/visual/contact-sheet.png"
+}

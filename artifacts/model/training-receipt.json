@@ -1,0 +1,35 @@
+{
+  "schema": "pdf-form-field-lab.target-model.v1",
+  "model_type": "DictVectorizer + balanced LogisticRegression",
+  "label_intent_layer": "deterministic label_ner.py features used as advisory inputs",
+  "feature_contract": "normalized geometry + lexical cues + label-intent entities",
+  "record_count": 8734,
+  "class_counts": {
+    "choice": 7,
+    "date": 4,
+    "image": 86,
+    "negative": 2614,
+    "signature": 9,
+    "text": 6011,
+    "textarea": 3
+  },
+  "source_groups": [
+    "doclaynet-train-sample",
+    "form6",
+    "funsd-train",
+    "ontology-anchors"
+  ],
+  "holdout_count": 45,
+  "holdout_accuracy": 0.3778,
+  "holdout_macro_f1": 0.25,
+  "supervision": "weak-and-reviewed-mixed; not a field-level gold benchmark",
+  "split_strategy": "group-disjoint GroupShuffleSplit",
+  "train_groups": [
+    "doclaynet-train-sample",
+    "funsd-train",
+    "ontology-anchors"
+  ],
+  "holdout_groups": [
+    "form6"
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "representation": "native-widgets",
+  "native_field_count": 4,
+  "native_field_names": [
+    "traveler-name",
+    "travel-date",
+    "consent",
+    "travel-notes"
+  ],
+  "native_target_kinds": {
+    "text": 3,
+    "textarea": 0,
+    "choice": 1,
+    "signature": 0
+  },
+  "native_radio_targets": 0,
+  "native_multiline_targets": 0
+}

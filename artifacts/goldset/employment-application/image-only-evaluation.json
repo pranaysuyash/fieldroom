@@ -1,0 +1,99 @@
+{
+  "schema": "pdf-field-lab.detector-evaluation.v1",
+  "pdf": "artifacts/goldset/employment-application/image-only.pdf",
+  "labels": "artifacts/goldset/employment-application/image-only-labels.json",
+  "detector": "raster",
+  "source_sha256": "d310bbf7bc0439ac3557eddbc266f3c3ebf09e5b3115ef518bae39c58a048378",
+  "policy": {
+    "positive_match_iou": 0.25
+  },
+  "prediction_count": 6,
+  "positive_cases": 6,
+  "positive_matches": 6,
+  "positive_recall": 1.0,
+  "false_positive_predictions": 0,
+  "precision": 1.0,
+  "f1": 1.0,
+  "hard_negative_cases": 1,
+  "hard_negative_false_positives": 0,
+  "hard_negative_false_positive_rate": 0.0,
+  "typed_cases": 6,
+  "type_correct": 6,
+  "type_accuracy": 1.0,
+  "label_association_rate": 1.0,
+  "association_cases": 0,
+  "association_matches": 0,
+  "association_recall": 1.0,
+  "duplicate_pairs": 0,
+  "positive_details": [
+    {
+      "id": "employment-application.applicant-name",
+      "matched": true,
+      "iou": 0.979,
+      "predicted_id": "raster-target-1-0005",
+      "predicted_kind": "text",
+      "label": "Applicant name:",
+      "label_similarity": 1.0,
+      "label_associated": true
+    },
+    {
+      "id": "employment-application.birth-date",
+      "matched": true,
+      "iou": 0.978,
+      "predicted_id": "raster-target-1-0004",
+      "predicted_kind": "date",
+      "label": "Date of birth:",
+      "label_similarity": 1.0,
+      "label_associated": true
+    },
+    {
+      "id": "employment-application.work-authorized",
+      "matched": true,
+      "iou": 0.947,
+      "predicted_id": "raster-target-1-0003",
+      "predicted_kind": "choice",
+      "label": "Agree to work terms:",
+      "label_similarity": 1.0,
+      "label_associated": true
+    },
+    {
+      "id": "employment-application.application-notes",
+      "matched": true,
+      "iou": 0.991,
+      "predicted_id": "raster-target-1-0000",
+      "predicted_kind": "textarea",
+      "label": "Additional comments:",
+      "label_similarity": 1.0,
+      "label_associated": true
+    },
+    {
+      "id": "employment-application.passport-photo",
+      "matched": true,
+      "iou": 0.997,
+      "predicted_id": "raster-target-1-0001",
+      "predicted_kind": "image",
+      "label": "Passport photo:",
+      "label_similarity": 1.0,
+      "label_associated": true
+    },
+    {
+      "id": "employment-application.applicant-signature",
+      "matched": true,
+      "iou": 0.36,
+      "predicted_id": "raster-target-1-0002",
+      "predicted_kind": "signature",
+      "label": "Applicant signature:",
+      "label_similarity": 1.0,
+      "label_associated": true
+    }
+  ],
+  "association_details": [],
+  "hard_negative_details": [
+    {
+      "id": "employment-application.hard-negative-footer-divider",
+      "false_positive": false,
+      "matches": []
+    }
+  ],
+  "representation": "image-only"
+}

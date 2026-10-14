@@ -1,0 +1,112 @@
+{
+  "schema": "pdf-field-lab.gold-labels.v1",
+  "sourceSha256": "437d3e7eefb4ae1206431cc63852766b75956c40d00c77402a6ff5a9e4a00ee2",
+  "policy": {
+    "positiveMatchIoU": 0.25
+  },
+  "cases": [
+    {
+      "id": "travel-consent.traveler-name",
+      "pageIndex": 0,
+      "class": "text",
+      "expected": "detected",
+      "hardNegative": false,
+      "requiredFieldType": "text",
+      "expectedLabel": "Traveler full name:",
+      "target": {
+        "x": 72,
+        "y": 676.0,
+        "width": 360,
+        "height": 24
+      }
+    },
+    {
+      "id": "travel-consent.travel-date",
+      "pageIndex": 0,
+      "class": "date",
+      "expected": "detected",
+      "hardNegative": false,
+      "requiredFieldType": "date",
+      "expectedLabel": "Travel date:",
+      "target": {
+        "x": 72,
+        "y": 620.0,
+        "width": 180,
+        "height": 24
+      }
+    },
+    {
+      "id": "travel-consent.consent",
+      "pageIndex": 0,
+      "class": "checkbox",
+      "expected": "detected",
+      "hardNegative": false,
+      "requiredFieldType": "choice",
+      "expectedLabel": "I agree to the travel terms:",
+      "target": {
+        "x": 72,
+        "y": 570.0,
+        "width": 18,
+        "height": 18
+      }
+    },
+    {
+      "id": "travel-consent.travel-notes",
+      "pageIndex": 0,
+      "class": "textarea",
+      "expected": "detected",
+      "hardNegative": false,
+      "requiredFieldType": "textarea",
+      "expectedLabel": "Travel notes:",
+      "target": {
+        "x": 72,
+        "y": 210.0,
+        "width": 300,
+        "height": 62
+      }
+    },
+    {
+      "id": "travel-consent.traveler-photo",
+      "pageIndex": 0,
+      "class": "image",
+      "expected": "detected",
+      "hardNegative": false,
+      "requiredFieldType": "image",
+      "expectedLabel": "Recent photograph:",
+      "target": {
+        "x": 390,
+        "y": 432.0,
+        "width": 130,
+        "height": 100
+      }
+    },
+    {
+      "id": "travel-consent.guardian-signature",
+      "pageIndex": 0,
+      "class": "signature",
+      "expected": "detected",
+      "hardNegative": false,
+      "requiredFieldType": "signature",
+      "expectedLabel": "Guardian signature:",
+      "target": {
+        "x": 72,
+        "y": 386.0,
+        "width": 330,
+        "height": 4
+      }
+    },
+    {
+      "id": "travel-consent.hard-negative-footer-divider",
+      "pageIndex": 0,
+      "class": "underline",
+      "expected": "abstain",
+      "hardNegative": true,
+      "target": {
+        "x": 72,
+        "y": 319.0,
+        "width": 468,
+        "height": 3
+      }
+    }
+  ]
+}

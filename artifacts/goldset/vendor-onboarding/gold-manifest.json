@@ -1,0 +1,201 @@
+{
+  "document_family_id": "vendor-onboarding",
+  "review_status": "gold-authored",
+  "source_kind": "controlled-positive-fixture",
+  "targets": [
+    {
+      "id": "vendor-onboarding.company-name",
+      "page": 1,
+      "label": "Company name:",
+      "kind": "text",
+      "component": "text-field",
+      "selection_mode": null,
+      "bbox": {
+        "x": 72,
+        "y": 96,
+        "width": 260,
+        "height": 24
+      },
+      "editable_strategy": "acroform-text",
+      "review_required": false,
+      "required": false,
+      "conditional_on": null,
+      "options": [],
+      "evidence": [],
+      "confidence": 1.0,
+      "notes": [
+        "Authored reviewed gold target"
+      ],
+      "input_mode": "single",
+      "max_length": null,
+      "label_entities": [],
+      "status": "accepted"
+    },
+    {
+      "id": "vendor-onboarding.contact-email",
+      "page": 1,
+      "label": "Contact email:",
+      "kind": "text",
+      "component": "text-field",
+      "selection_mode": null,
+      "bbox": {
+        "x": 72,
+        "y": 150,
+        "width": 260,
+        "height": 24
+      },
+      "editable_strategy": "acroform-text",
+      "review_required": false,
+      "required": false,
+      "conditional_on": null,
+      "options": [],
+      "evidence": [],
+      "confidence": 1.0,
+      "notes": [
+        "Authored reviewed gold target"
+      ],
+      "input_mode": "single",
+      "max_length": null,
+      "label_entities": [],
+      "status": "accepted"
+    },
+    {
+      "id": "vendor-onboarding.accept-terms",
+      "page": 1,
+      "label": "Accept terms:",
+      "kind": "choice",
+      "component": "choice-group",
+      "selection_mode": "checkbox",
+      "bbox": {
+        "x": 72,
+        "y": 204,
+        "width": 18,
+        "height": 18
+      },
+      "editable_strategy": "acroform-checkbox",
+      "review_required": false,
+      "required": false,
+      "conditional_on": null,
+      "options": [],
+      "evidence": [],
+      "confidence": 1.0,
+      "notes": [
+        "Authored reviewed gold target"
+      ],
+      "input_mode": "single",
+      "max_length": null,
+      "label_entities": [],
+      "status": "accepted"
+    },
+    {
+      "id": "vendor-onboarding.business-details",
+      "page": 1,
+      "label": "Business details:",
+      "kind": "textarea",
+      "component": "text-area",
+      "selection_mode": null,
+      "bbox": {
+        "x": 72,
+        "y": 510,
+        "width": 300,
+        "height": 62
+      },
+      "editable_strategy": "acroform-text",
+      "review_required": false,
+      "required": false,
+      "conditional_on": null,
+      "options": [],
+      "evidence": [],
+      "confidence": 1.0,
+      "notes": [
+        "Authored reviewed gold target"
+      ],
+      "input_mode": "single",
+      "max_length": null,
+      "label_entities": [],
+      "status": "accepted"
+    },
+    {
+      "id": "vendor-onboarding.company-logo",
+      "page": 1,
+      "label": "Company logo:",
+      "kind": "image",
+      "component": "photo-dropzone",
+      "selection_mode": null,
+      "bbox": {
+        "x": 400,
+        "y": 230,
+        "width": 120,
+        "height": 90
+      },
+      "editable_strategy": "visual-overlay-image",
+      "review_required": false,
+      "required": false,
+      "conditional_on": null,
+      "options": [],
+      "evidence": [],
+      "confidence": 1.0,
+      "notes": [
+        "Authored reviewed gold target"
+      ],
+      "input_mode": "single",
+      "max_length": null,
+      "label_entities": [],
+      "status": "accepted"
+    },
+    {
+      "id": "vendor-onboarding.authorized-signature",
+      "page": 1,
+      "label": "Authorized signature:",
+      "kind": "signature",
+      "component": "signature-pad",
+      "selection_mode": null,
+      "bbox": {
+        "x": 72,
+        "y": 302,
+        "width": 300,
+        "height": 4
+      },
+      "editable_strategy": "visual-overlay-image",
+      "review_required": false,
+      "required": false,
+      "conditional_on": null,
+      "options": [],
+      "evidence": [],
+      "confidence": 1.0,
+      "notes": [
+        "Authored reviewed gold target"
+      ],
+      "input_mode": "single",
+      "max_length": null,
+      "label_entities": [],
+      "status": "accepted"
+    }
+  ],
+  "representations": [
+    {
+      "representation": "flat-vector",
+      "path": "artifacts/goldset/vendor-onboarding/flat-vector.pdf",
+      "source_sha256": "4b204bb39ac56edb5323958e11fd4c5ccbbe78cdab1b8446cabc7466466c0e1c",
+      "labels": "artifacts/goldset/vendor-onboarding/flat-vector-labels.json",
+      "evaluation": "artifacts/goldset/vendor-onboarding/flat-vector-evaluation.json",
+      "detector": "semantic"
+    },
+    {
+      "representation": "native-widgets",
+      "path": "artifacts/goldset/vendor-onboarding/native-widgets.pdf",
+      "source_sha256": "e2e079a2ab9ce68bf62a7ae5259a170c1a5ca22467df4b06cadf289c26e88e1f",
+      "labels": "artifacts/goldset/vendor-onboarding/native-widgets-labels.json",
+      "evaluation": "artifacts/goldset/vendor-onboarding/native-widgets-evaluation.json",
+      "detector": "native"
+    },
+    {
+      "representation": "image-only",
+      "path": "artifacts/goldset/vendor-onboarding/image-only.pdf",
+      "source_sha256": "d672ff0f6dd27b7a4d1cf51b68d917e17a7a142a6aa612f1a2241856d92c715b",
+      "labels": "artifacts/goldset/vendor-onboarding/image-only-labels.json",
+      "evaluation": "artifacts/goldset/vendor-onboarding/image-only-evaluation.json",
+      "detector": "raster"
+    }
+  ]
+}

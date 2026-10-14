@@ -1,0 +1,99 @@
+{
+  "schema": "pdf-field-lab.detector-evaluation.v1",
+  "pdf": "artifacts/goldset/travel-consent/flat-vector.pdf",
+  "labels": "artifacts/goldset/travel-consent/flat-vector-labels.json",
+  "detector": "semantic",
+  "source_sha256": "dd9a581bb7e792d53981d1e111f1928b6e7e93a9086129d9adbc4126551b5ffc",
+  "policy": {
+    "positive_match_iou": 0.25
+  },
+  "prediction_count": 6,
+  "positive_cases": 6,
+  "positive_matches": 6,
+  "positive_recall": 1.0,
+  "false_positive_predictions": 0,
+  "precision": 1.0,
+  "f1": 1.0,
+  "hard_negative_cases": 1,
+  "hard_negative_false_positives": 0,
+  "hard_negative_false_positive_rate": 0.0,
+  "typed_cases": 6,
+  "type_correct": 6,
+  "type_accuracy": 1.0,
+  "label_association_rate": 1.0,
+  "association_cases": 0,
+  "association_matches": 0,
+  "association_recall": 1.0,
+  "duplicate_pairs": 0,
+  "positive_details": [
+    {
+      "id": "travel-consent.traveler-name",
+      "matched": true,
+      "iou": 1.0,
+      "predicted_id": "target-1-0000",
+      "predicted_kind": "text",
+      "label": "Traveler full name:",
+      "label_similarity": 1.0,
+      "label_associated": true
+    },
+    {
+      "id": "travel-consent.travel-date",
+      "matched": true,
+      "iou": 1.0,
+      "predicted_id": "target-1-0001",
+      "predicted_kind": "date",
+      "label": "Travel date:",
+      "label_similarity": 1.0,
+      "label_associated": true
+    },
+    {
+      "id": "travel-consent.consent",
+      "matched": true,
+      "iou": 1.0,
+      "predicted_id": "target-1-0002",
+      "predicted_kind": "choice",
+      "label": "I agree to the travel terms:",
+      "label_similarity": 1.0,
+      "label_associated": true
+    },
+    {
+      "id": "travel-consent.travel-notes",
+      "matched": true,
+      "iou": 1.0,
+      "predicted_id": "target-1-0003",
+      "predicted_kind": "textarea",
+      "label": "Travel notes:",
+      "label_similarity": 1.0,
+      "label_associated": true
+    },
+    {
+      "id": "travel-consent.traveler-photo",
+      "matched": true,
+      "iou": 1.0,
+      "predicted_id": "target-1-0004",
+      "predicted_kind": "image",
+      "label": "Recent photograph:",
+      "label_similarity": 1.0,
+      "label_associated": true
+    },
+    {
+      "id": "travel-consent.guardian-signature",
+      "matched": true,
+      "iou": 1.0,
+      "predicted_id": "target-1-0005",
+      "predicted_kind": "signature",
+      "label": "Guardian signature:",
+      "label_similarity": 1.0,
+      "label_associated": true
+    }
+  ],
+  "association_details": [],
+  "hard_negative_details": [
+    {
+      "id": "travel-consent.hard-negative-footer-divider",
+      "false_positive": false,
+      "matches": []
+    }
+  ],
+  "representation": "flat-vector"
+}

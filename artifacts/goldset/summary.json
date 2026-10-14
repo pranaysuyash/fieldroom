@@ -1,0 +1,68 @@
+{
+  "schema": "pdf-field-lab.goldset-receipt.v1",
+  "family_count": 3,
+  "representation_count": 9,
+  "representations": {
+    "flat-vector": 3,
+    "native-widgets": 3,
+    "image-only": 3
+  },
+  "flat_vector_positive_recall": [
+    1.0,
+    1.0,
+    1.0
+  ],
+  "image_only_positive_recall": [
+    1.0,
+    1.0,
+    1.0
+  ],
+  "flat_vector_type_accuracy": [
+    1.0,
+    1.0,
+    1.0
+  ],
+  "image_only_type_accuracy": [
+    1.0,
+    1.0,
+    1.0
+  ],
+  "flat_vector_label_association_rate": [
+    1.0,
+    1.0,
+    1.0
+  ],
+  "image_only_label_association_rate": [
+    1.0,
+    1.0,
+    1.0
+  ],
+  "flat_vector_hard_negative_false_positive_rate": [
+    0.0,
+    0.0,
+    0.0
+  ],
+  "image_only_hard_negative_false_positive_rate": [
+    0.0,
+    0.0,
+    0.0
+  ],
+  "flat_vector_duplicate_pairs": [
+    0,
+    0,
+    0
+  ],
+  "image_only_duplicate_pairs": [
+    0,
+    0,
+    0
+  ],
+  "native_field_counts": [
+    4,
+    4,
+    4
+  ],
+  "visual_contact_sheet": "artifacts/goldset/visual/contact-sheet.png",
+  "manifest": "artifacts/goldset/goldset-manifest.json",
+  "privacy_note": "Generated controlled fixtures only; no user PDF bytes copied."
+}
