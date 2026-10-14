@@ -1,3 +1,5 @@
+import pytest
+
 from pdf_field_lab.target_model import train_target_model
 from pdf_field_lab.training_data import _doclaynet_records, _funsd_records
 
@@ -27,6 +29,11 @@ def test_advisory_target_model_trains_and_records_provenance():
 
 
 def test_local_proxy_dataset_geometry_is_normalized():
+    # The FUNSD/DocLayNet corpora live in the machine-local sibling project
+    # and are deliberately not distributed; skip where they are absent
+    # (CI, fresh clones) instead of failing on an environment gap.
+    if not _funsd_records() and not _doclaynet_records():
+        pytest.skip("local sibling proxy datasets not available")
     funsd = _funsd_records()
     doclaynet = _doclaynet_records()
 
