@@ -43,7 +43,7 @@ def _png_data_url() -> str:
 
 def test_browser_session_upload_page_and_export_flow():
     with TestClient(app) as client, FIXTURE.open("rb") as handle:
-        response = client.post("/api/sessions", files={"file": ("form6.pdf", handle, "application/pdf")})
+        response = client.post("/api/sessions?fresh=true", files={"file": ("form6.pdf", handle, "application/pdf")})
     assert response.status_code == 200, response.text
     session = response.json()
     assert session["session_id"]
@@ -76,7 +76,7 @@ def test_browser_session_upload_page_and_export_flow():
 
 def test_manifest_rejects_stale_revision_and_out_of_bounds_page():
     with TestClient(app) as client, FIXTURE.open("rb") as handle:
-        response = client.post("/api/sessions", files={"file": ("form6.pdf", handle, "application/pdf")})
+        response = client.post("/api/sessions?fresh=true", files={"file": ("form6.pdf", handle, "application/pdf")})
     assert response.status_code == 200
     session = response.json()
     manifest = _accept_all(session["manifest"])
@@ -96,7 +96,7 @@ def test_manifest_rejects_stale_revision_and_out_of_bounds_page():
 
 def test_export_rebuilds_from_accepted_manifest_revision():
     with TestClient(app) as client, FIXTURE.open("rb") as handle:
-        response = client.post("/api/sessions", files={"file": ("editable.pdf", handle, "application/pdf")})
+        response = client.post("/api/sessions?fresh=true", files={"file": ("editable.pdf", handle, "application/pdf")})
     assert response.status_code == 200, response.text
     session = response.json()
     manifest = _accept_all(session["manifest"])
@@ -144,7 +144,7 @@ def test_export_rebuilds_from_accepted_manifest_revision():
 
 def test_download_url_is_bound_to_manifest_and_values_revision():
     with TestClient(app) as client, FIXTURE.open("rb") as handle:
-        response = client.post("/api/sessions", files={"file": ("editable.pdf", handle, "application/pdf")})
+        response = client.post("/api/sessions?fresh=true", files={"file": ("editable.pdf", handle, "application/pdf")})
     assert response.status_code == 200, response.text
     session = response.json()
     manifest = _accept_all(session["manifest"])
@@ -172,9 +172,9 @@ def test_download_url_is_bound_to_manifest_and_values_revision():
 
 def test_upload_rejects_non_pdf_and_oversized_content():
     with TestClient(app) as client:
-        non_pdf = client.post("/api/sessions", files={"file": ("notes.pdf", b"not a pdf", "application/pdf")})
+        non_pdf = client.post("/api/sessions?fresh=true", files={"file": ("notes.pdf", b"not a pdf", "application/pdf")})
         assert non_pdf.status_code == 415
-        oversized = client.post("/api/sessions", files={"file": ("large.pdf", b"%PDF-" + b"x" * (25 * 1024 * 1024), "application/pdf")})
+        oversized = client.post("/api/sessions?fresh=true", files={"file": ("large.pdf", b"%PDF-" + b"x" * (25 * 1024 * 1024), "application/pdf")})
         assert oversized.status_code == 413
 
 
@@ -186,14 +186,14 @@ def test_upload_rejects_page_limit():
     writer.write(buffer)
     buffer.seek(0)
     with TestClient(app) as client:
-        response = client.post("/api/sessions", files={"file": ("many-pages.pdf", buffer, "application/pdf")})
+        response = client.post("/api/sessions?fresh=true", files={"file": ("many-pages.pdf", buffer, "application/pdf")})
     assert response.status_code == 413
     assert "page limit" in response.json()["detail"]
 
 
 def test_manifest_rejects_target_limit():
     with TestClient(app) as client, FIXTURE.open("rb") as handle:
-        response = client.post("/api/sessions", files={"file": ("form6.pdf", handle, "application/pdf")})
+        response = client.post("/api/sessions?fresh=true", files={"file": ("form6.pdf", handle, "application/pdf")})
     assert response.status_code == 200
     session = response.json()
     manifest = _accept_all(session["manifest"])
@@ -213,7 +213,7 @@ def test_manifest_rejects_target_limit():
 
 def test_review_candidates_export_governs_review_events():
     with TestClient(app) as client, FIXTURE.open("rb") as handle:
-        created = client.post("/api/sessions", files={"file": ("form6.pdf", handle, "application/pdf")})
+        created = client.post("/api/sessions?fresh=true", files={"file": ("form6.pdf", handle, "application/pdf")})
     assert created.status_code == 200
     session = created.json()
 
@@ -246,7 +246,7 @@ def test_review_candidates_export_governs_review_events():
 def test_medpiper_upload_exposes_signature_audit_without_editable_targets():
     config = _medpiper_config()
     with TestClient(app) as client, Path(config["pdf"]).open("rb") as handle:
-        response = client.post("/api/sessions", files={"file": ("medpiper.pdf", handle, "application/pdf")})
+        response = client.post("/api/sessions?fresh=true", files={"file": ("medpiper.pdf", handle, "application/pdf")})
     assert response.status_code == 200, response.text
     session = response.json()
     assert session["targets"] == []
@@ -269,7 +269,7 @@ def _audit_lines():
 def test_manifest_change_writes_hash_bound_review_receipt(monkeypatch):
     monkeypatch.setenv("PDF_FIELD_LAB_REVIEWER", "test-reviewer")
     with TestClient(app) as client, FIXTURE.open("rb") as handle:
-        response = client.post("/api/sessions", files={"file": ("form6.pdf", handle, "application/pdf")})
+        response = client.post("/api/sessions?fresh=true", files={"file": ("form6.pdf", handle, "application/pdf")})
     assert response.status_code == 200
     session = response.json()
     manifest = _accept_all(session["manifest"])
@@ -294,7 +294,7 @@ def test_manifest_change_writes_hash_bound_review_receipt(monkeypatch):
 
 def test_stale_revision_replay_records_no_second_receipt():
     with TestClient(app) as client, FIXTURE.open("rb") as handle:
-        response = client.post("/api/sessions", files={"file": ("form6.pdf", handle, "application/pdf")})
+        response = client.post("/api/sessions?fresh=true", files={"file": ("form6.pdf", handle, "application/pdf")})
     session = response.json()
     manifest = _accept_all(session["manifest"])
     with TestClient(app) as client:
@@ -315,7 +315,7 @@ def test_active_content_is_quarantined_with_operator_visible_reason():
     buffer.seek(0)
     audit_before = len(_audit_lines())
     with TestClient(app) as client:
-        response = client.post("/api/sessions", files={"file": ("active.pdf", buffer, "application/pdf")})
+        response = client.post("/api/sessions?fresh=true", files={"file": ("active.pdf", buffer, "application/pdf")})
     assert response.status_code == 422
     assert "quarantined" in response.json()["detail"]
     assert "javascript" in response.json()["detail"]
@@ -332,7 +332,7 @@ def test_encrypted_pdf_is_rejected_and_audited():
     buffer.seek(0)
     audit_before = len(_audit_lines())
     with TestClient(app) as client:
-        response = client.post("/api/sessions", files={"file": ("locked.pdf", buffer, "application/pdf")})
+        response = client.post("/api/sessions?fresh=true", files={"file": ("locked.pdf", buffer, "application/pdf")})
     assert response.status_code == 422
     new_lines = _audit_lines()[audit_before:]
     # With qpdf on PATH the structural scan rejects it first; without qpdf the
@@ -343,7 +343,7 @@ def test_encrypted_pdf_is_rejected_and_audited():
 def test_upload_rejections_are_recorded_in_shared_audit_ledger():
     audit_before = len(_audit_lines())
     with TestClient(app) as client:
-        response = client.post("/api/sessions", files={"file": ("notes.pdf", b"not a pdf", "application/pdf")})
+        response = client.post("/api/sessions?fresh=true", files={"file": ("notes.pdf", b"not a pdf", "application/pdf")})
     assert response.status_code == 415
     new_lines = _audit_lines()[audit_before:]
     assert any(item["kind"] == "upload-rejected" and item["status"] == 415 for item in new_lines)
@@ -379,3 +379,128 @@ def test_vanished_session_storage_returns_explicit_404(tmp_path):
         assert ghost.id not in SESSIONS
     finally:
         SESSIONS.pop(ghost.id, None)
+
+
+def _accept_and_flag_required(session, client, target_label_substring):
+    manifest = _accept_all(session["manifest"])
+    flagged = 0
+    for target in manifest["targets"]:
+        if target["status"] == "rejected":
+            continue
+        if target_label_substring.lower() in target["label"].lower():
+            target["required"] = True
+            flagged += 1
+    assert flagged, f"no target matched {target_label_substring!r}"
+    return manifest
+
+
+def test_export_rejects_empty_required_fields_and_reports_labels():
+    with TestClient(app) as client, FIXTURE.open("rb") as handle:
+        response = client.post("/api/sessions?fresh=true", files={"file": ("form6.pdf", handle, "application/pdf")})
+    session = response.json()
+    manifest = _accept_and_flag_required(session, client, "Official-language given name")
+    with TestClient(app) as client:
+        blocked = client.put(f"/api/sessions/{session['session_id']}/manifest", json=manifest)
+        assert blocked.status_code == 200
+        export = client.post(f"/api/sessions/{session['session_id']}/export", json={})
+        assert export.status_code == 422
+        assert "required field" in export.json()["detail"]
+        assert "Official-language" in export.json()["detail"]
+
+
+def test_export_accepts_filled_required_fields():
+    with TestClient(app) as client, FIXTURE.open("rb") as handle:
+        response = client.post("/api/sessions?fresh=true", files={"file": ("form6.pdf", handle, "application/pdf")})
+    session = response.json()
+    manifest = _accept_and_flag_required(session, client, "Official-language given name")
+    target_id = next(t["id"] for t in manifest["targets"] if "Official-language given name" in t["label"])
+    with TestClient(app) as client:
+        assert client.put(f"/api/sessions/{session['session_id']}/manifest", json=manifest).status_code == 200
+        export = client.post(f"/api/sessions/{session['session_id']}/export",
+                             json={"values": {target_id: "Test Value"}})
+        assert export.status_code == 200, export.text
+
+
+def test_conditional_required_is_skipped_until_condition_holds():
+    with TestClient(app) as client, FIXTURE.open("rb") as handle:
+        response = client.post("/api/sessions?fresh=true", files={"file": ("form6.pdf", handle, "application/pdf")})
+    session = response.json()
+    manifest = _accept_all(session["manifest"])
+    active = [t for t in manifest["targets"] if t["status"] != "rejected"]
+    trigger = next(t for t in active if t["kind"] == "choice")
+    dependent = next(t for t in active if t["id"] != trigger["id"] and t["kind"] == "text")
+    trigger["required"] = True
+    dependent["required"] = True
+    dependent["conditional_on"] = f"{trigger['id']}=selected"
+    with TestClient(app) as client:
+        assert client.put(f"/api/sessions/{session['session_id']}/manifest", json=manifest).status_code == 200
+        # Trigger unfilled: the dependent requirement is skipped, but the
+        # unfilled trigger itself still blocks export.
+        export = client.post(f"/api/sessions/{session['session_id']}/export", json={})
+        assert export.status_code == 422
+        values = {trigger["id"]: "selected", dependent["id"]: "filled"}
+        ok = client.post(f"/api/sessions/{session['session_id']}/export", json={"values": values})
+        assert ok.status_code == 200, ok.text
+
+
+def test_values_route_serves_identity_bound_json():
+    with TestClient(app) as client, FIXTURE.open("rb") as handle:
+        response = client.post("/api/sessions?fresh=true", files={"file": ("form6.pdf", handle, "application/pdf")})
+    session = response.json()
+    manifest = _accept_all(session["manifest"])
+    with TestClient(app) as client:
+        assert client.put(f"/api/sessions/{session['session_id']}/manifest", json=manifest).status_code == 200
+        export = client.post(f"/api/sessions/{session['session_id']}/export",
+                             json={"values": {"F6-05": "Prime Minister"}})
+        assert export.status_code == 200
+        body = export.json()
+        values = client.get(body["values_url"])
+        assert values.status_code == 200
+        payload = values.json()
+        assert payload["schema"] == "pdf-field-lab.values.v1"
+        assert payload["values"] == {"F6-05": "Prime Minister"}
+        broken = body["values_url"].replace("revision=1", "revision=9")
+        assert client.get(broken).status_code == 404  # unknown revision: no receipt file
+        latest = client.get(f"/api/sessions/{session['session_id']}/values")
+        assert latest.status_code == 200
+
+
+def test_same_source_upload_resumes_and_fresh_starts_over():
+    with TestClient(app) as client, FIXTURE.open("rb") as handle:
+        first = client.post("/api/sessions", files={"file": ("form6.pdf", handle, "application/pdf")})
+    session = first.json()
+    manifest = _accept_all(session["manifest"])
+    with TestClient(app) as client:
+        assert client.put(f"/api/sessions/{session['session_id']}/manifest", json=manifest).status_code == 200
+    with TestClient(app) as client, FIXTURE.open("rb") as handle:
+        again = client.post("/api/sessions", files={"file": ("form6.pdf", handle, "application/pdf")})
+    resumed = again.json()
+    assert resumed["resumed"] is True
+    assert resumed["session_id"] == session["session_id"]
+    assert resumed["manifest"]["revision"] == session["manifest"]["revision"] + 1
+    with TestClient(app) as client, FIXTURE.open("rb") as handle:
+        fresh = client.post("/api/sessions?fresh=true", files={"file": ("form6.pdf", handle, "application/pdf")})
+    assert fresh.json()["session_id"] != session["session_id"]
+    assert "resumed" not in fresh.json()
+
+
+def test_review_session_with_candidates_survives_the_short_ttl():
+    import os
+    import time
+    review_dir = SESSION_ROOT / ("a" * 32)
+    review_dir.mkdir(parents=True, exist_ok=True)
+    (review_dir / "review-candidates.jsonl").write_text("{}\n", encoding="utf-8")
+    plain_dir = SESSION_ROOT / ("b" * 32)
+    plain_dir.mkdir(parents=True, exist_ok=True)
+    old = time.time() - (SESSION_TTL_SECONDS + 60)
+    for directory in (review_dir, plain_dir):
+        os.utime(directory, (old, old))
+    with TestClient(app) as client:
+        assert client.get("/health").status_code == 200
+    assert review_dir.exists(), "review work must survive the ordinary TTL"
+    assert not plain_dir.exists()
+    older = time.time() - (SESSION_TTL_SECONDS * 24 * 8)
+    os.utime(review_dir, (older, older))
+    with TestClient(app) as client:
+        assert client.get("/health").status_code == 200
+    assert not review_dir.exists()

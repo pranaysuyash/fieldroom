@@ -46,3 +46,15 @@
 - **Context:** review receipts are hash-bound (integrity chain) but not cryptographically signed; signing needs operator key management that a single-operator local tool may not justify.
 - **Recommendation:** defer until the first multi-reviewer or pre-sharing milestone (IDEA-150).
 - **Blocked:** nothing; a deliberate deferral.
+
+## FFL-D-requiredness-map (opened 2026-10-15)
+- **Context:** FFL-FILL-015 made requiredness enforceable at export and reviewer-declared via an inspector chip. The Form-6 profile could instead author `required=True` for fields the ECI marks mandatory (e.g., the relative-details block), but the exact official rule (which of the language-pair name fields is individually mandatory, the mobile-or-email or-group) is domain judgment.
+- **Options:** A. Keep requiredness reviewer-declared (current): each review session decides, flexible, but shipped documents carry no required flags until a reviewer marks them. B. Author the profile map now: consistent out-of-the-box enforcement on Form-6, but the map must be verified against the actual ECI instruction sheet.
+- **Recommendation:** B, done honestly: sit with the Form-6 instruction sheet during the first review session and mark the map, keeping reviewer overrides. Not urgent; the machinery is in place either way.
+- **Blocked:** first review session (the map authoring rides on it).
+
+## FFL-D-scan-investment (opened 2026-10-15)
+- **Context:** docs/exploration/2026-10-15-scanned-form-product-path.md sequences the scanned-form frontier: preprocessing bake-off first, then the miss taxonomy (IDEA-136), with gold acquisition (IDEA-137) in parallel. The falsifier: if preprocessing plus taxonomy fixes recover fewer than half of visually confirmed regions on Form6_preview, scanned forms should be declared out of scope for this architecture generation.
+- **Options:** A. Fund the preprocessing bake-off now (bounded, existing fixtures). B. Defer until the first review sessions produce some real-scan gold.
+- **Recommendation:** A: it is cheap, runs on existing fixtures, and its result determines whether B is even worth scheduling.
+- **Blocked:** nothing; awaiting the go.

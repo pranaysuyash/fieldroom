@@ -23,6 +23,19 @@ milestone-based semver.
   [fieldroom](https://github.com/pranaysuyash/fieldroom) with a fail-closed
   export gate (`tools/export_public.py`).
 - Review-session runbook (`docs/runbooks/review-session.md`).
+- Reviewer keyboard triage (FFL-REV-014): j jumps to the next unreviewed
+  target, a accepts and continues, x rejects/restores, ? shows shortcuts;
+  queue can be sorted worst-confidence-first.
+- Required-field governance (FFL-FILL-015): reviewers can mark targets
+  required; export refuses empty required values by name, respecting
+  `conditional_on` conditions; each export also persists a values JSON
+  served identity-bound via `GET /api/sessions/{id}/values`.
+- Resumable review sessions (FFL-SESS-016): re-uploading the same document
+  resumes the previous review state; sessions holding review candidates
+  survive the ordinary TTL up to a 7-day review TTL.
+- Viewer-compatibility receipts: automated reopen checks (strict pypdf,
+  PyMuPDF render, qpdf) plus a human viewer-pass runbook
+  (`docs/runbooks/viewer-verification.md`).
 
 ### Changed
 

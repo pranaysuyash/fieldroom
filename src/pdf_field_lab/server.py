@@ -40,6 +40,11 @@ MAX_UPLOAD_BYTES = positive_int_env("PDF_FIELD_LAB_MAX_UPLOAD_BYTES", 25 * 1024 
 MAX_PAGES = positive_int_env("PDF_FIELD_LAB_MAX_PAGES", 250)
 MAX_TARGETS = positive_int_env("PDF_FIELD_LAB_MAX_TARGETS", 1000)
 SESSION_TTL_SECONDS = positive_int_env("PDF_FIELD_LAB_SESSION_TTL_SECONDS", 3600)
+# Sessions holding un-ingested human review work (candidates JSONL) survive
+# the ordinary TTL: destroying reviewer output silently is worse than keeping
+# derived bytes a while longer. The long cap still guarantees cleanup.
+REVIEW_SESSION_TTL_SECONDS = positive_int_env(
+    "PDF_FIELD_LAB_REVIEW_SESSION_TTL_SECONDS", 7 * 24 * 3600)
 
 
 @dataclass
@@ -106,14 +111,128 @@ def _canonical_sha256(payload: dict[str, Any]) -> str:
     return hashlib.sha256(encoded).hexdigest()
 
 
+def _value_filled(value: Any) -> bool:
+    if isinstance(value, dict):
+        return any(_value_filled(item) for item in value.values())
+    if isinstance(value, bool):
+        return value
+    if isinstance(value, str):
+        return bool(value.strip())
+    return value is not None
+
+
+def _required_condition_active(target: dict[str, Any], values: dict[str, Any],
+                               by_id: dict[str, dict[str, Any]]) -> bool:
+    """A required target must be filled unless its conditional_on points at an
+    unfilled reference or at one whose value differs from the expected one.
+
+    Grammar: "<target_id>=<expected value>"; a bare token or absent field is
+    an opaque condition and stays enforced (conservative: a human resolves it).
+    """
+    condition = target.get("conditional_on")
+    if not isinstance(condition, str) or "=" not in condition:
+        return True
+    ref_id, _, expected = condition.partition("=")
+    ref_id = ref_id.strip()
+    ref_value = values.get(ref_id)
+    if not _value_filled(ref_value):
+        return False
+    expected = expected.strip()
+    if not expected or expected == "*":
+        return True
+    if isinstance(ref_value, dict):
+        return expected in ref_value
+    return str(ref_value) == expected
+
+
+class _StoredReport:
+    """Wraps a persisted analysis payload so a restored session can serve
+    reads without rerunning detection."""
+
+    def __init__(self, payload: dict[str, Any]):
+        self._payload = payload
+
+    def as_dict(self) -> dict[str, Any]:
+        return self._payload
+
+
+def _load_session_from_dir(directory: Path) -> Session | None:
+    """Rebuild a live Session from its persisted files (resume across restart)."""
+    try:
+        report_payload = json.loads((directory / "analysis.json").read_text(encoding="utf-8"))
+        manifest_payload = json.loads((directory / "manifest.json").read_text(encoding="utf-8"))
+        meta = json.loads((directory / "session.json").read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return None
+    try:
+        manifest = validate_manifest(manifest_payload, report_payload["input"]["page_sizes"])
+    except (ManifestValidationError, ValueError, KeyError):
+        return None
+    manifest.revision = int(manifest_payload.get("revision", 0))
+    source = directory / "source.pdf"
+    if not source.is_file():
+        return None
+    session = Session(
+        id=directory.name,
+        display_filename=str(meta.get("filename") or "resumed.pdf"),
+        directory=directory, source=source, editable=directory / "editable.pdf",
+        report=_StoredReport(report_payload), manifest=manifest,
+        lock=threading.RLock(), created_at=directory.stat().st_mtime,
+        security={"qpdf": "restored-session", "malware_scanner": "restored-session",
+                  "active_content": "checked-at-upload"},
+    )
+    return session
+
+
+def _find_resumable_session(source_sha256: str) -> Session | None:
+    """Find the live-or-restorable session for these exact source bytes and
+    register it. Among matches, the most recently created session with the
+    highest revision wins: that is the review the user was last inside."""
+    best: Session | None = None
+    best_key: tuple[float, int] | None = None
+    if not SESSION_ROOT.is_dir():
+        return None
+    for directory in SESSION_ROOT.iterdir():
+        if not directory.is_dir() or len(directory.name) != 32:
+            continue
+        meta_path = directory / "session.json"
+        if not meta_path.is_file() or not (directory / "manifest.json").is_file():
+            continue
+        try:
+            meta = json.loads(meta_path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            continue
+        if meta.get("source_sha256") != source_sha256:
+            continue
+        session = SESSIONS.get(directory.name) or _load_session_from_dir(directory)
+        if session is None:
+            continue
+        SESSIONS[session.id] = session
+        try:
+            created = directory.stat().st_mtime
+        except OSError:
+            created = 0.0
+        key = (created, session.manifest.revision)
+        if best_key is None or key > best_key:
+            best, best_key = session, key
+    return best
+
+
 def _cleanup_expired_sessions() -> None:
-    """Remove only app-owned, UUID-shaped session directories past the TTL."""
+    """Remove only app-owned, UUID-shaped session directories past their TTL.
+
+    The TTL depends on what the session holds: a session with recorded review
+    candidates carries un-ingested human work and gets the review TTL instead
+    of the ordinary one.
+    """
     now = time.time()
     for directory in SESSION_ROOT.iterdir():
         if not directory.is_dir() or len(directory.name) != 32:
             continue
         try:
-            if now - directory.stat().st_mtime > SESSION_TTL_SECONDS:
+            review_work = (directory / "review-candidates.jsonl").is_file()
+            ttl = REVIEW_SESSION_TTL_SECONDS if review_work else SESSION_TTL_SECONDS
+            if now - directory.stat().st_mtime > ttl:
                 shutil.rmtree(directory)
                 SESSIONS.pop(directory.name, None)
                 _audit_event({
@@ -285,7 +404,7 @@ def health() -> dict[str, str]:
 
 
 @app.post("/api/sessions")
-async def create_session(file: UploadFile = File(...)) -> dict[str, Any]:
+async def create_session(file: UploadFile = File(...), fresh: bool = False) -> dict[str, Any]:
     _cleanup_expired_sessions()
     filename = Path(file.filename or "upload.pdf").name
     if not filename.lower().endswith(".pdf"):
@@ -300,6 +419,15 @@ async def create_session(file: UploadFile = File(...)) -> dict[str, Any]:
             _upload_reject(413, f"PDF exceeds the {MAX_UPLOAD_BYTES // (1024 * 1024)} MB upload limit", filename=filename)
     if not data.startswith(b"%PDF"):
         _upload_reject(415, "file does not look like a PDF", filename=filename)
+    source_sha256 = hashlib.sha256(bytes(data)).hexdigest()
+    if not fresh:
+        # Same bytes uploaded again: resume the existing review session instead
+        # of forking a duplicate. ?fresh=true starts over deliberately.
+        resumed = _find_resumable_session(source_sha256)
+        if resumed is not None:
+            payload = _payload(resumed)
+            payload["resumed"] = True
+            return payload
     session_id = uuid.uuid4().hex
     directory = SESSION_ROOT / session_id
     directory.mkdir(parents=True, exist_ok=False)
@@ -307,6 +435,9 @@ async def create_session(file: UploadFile = File(...)) -> dict[str, Any]:
     # collisions when someone uploads a file named editable.pdf or filled.pdf.
     source = directory / "source.pdf"
     source.write_bytes(bytes(data))
+    (directory / "session.json").write_text(
+        json.dumps({"filename": filename, "source_sha256": source_sha256}, sort_keys=True) + "\n",
+        encoding="utf-8")
     try:
         security = _structural_scan(source)
         encrypted = False
@@ -495,6 +626,19 @@ async def export_session(session_id: str, payload: dict[str, Any]) -> dict[str, 
         if not isinstance(values, dict):
             raise HTTPException(status_code=422, detail="values must be an object keyed by target ID")
         active_fields = manifest.field_specs()
+        active_targets = manifest.active_targets
+        if any(target.get("required") for target in active_targets):
+            by_id = {target["id"]: target for target in active_targets}
+            missing = [target for target in active_targets
+                       if target.get("required")
+                       and _required_condition_active(target, values, by_id)
+                       and not _value_filled(values.get(target["id"]))]
+            if missing:
+                names = "; ".join(target["label"] for target in missing[:5])
+                more = f" (+{len(missing) - 5} more)" if len(missing) > 5 else ""
+                raise HTTPException(
+                    status_code=422,
+                    detail=f"{len(missing)} required field(s) have no value: {names}{more}")
         manifest_revision = manifest.revision
         manifest_sha256 = _manifest_sha256(manifest)
         values_sha256 = _values_sha256(values)
@@ -511,6 +655,18 @@ async def export_session(session_id: str, payload: dict[str, Any]) -> dict[str, 
             raise HTTPException(status_code=422, detail=str(exc)) from exc
         source_sha256 = _sha256(session.source)
         output_sha256 = _sha256(output)
+        values_filename = f"values-r{manifest_revision}-{values_sha256[:16]}.json"
+        values_payload = {
+            "schema": "pdf-field-lab.values.v1",
+            "session_id": session_id,
+            "source_sha256": source_sha256,
+            "manifest_revision": manifest_revision,
+            "manifest_sha256": manifest_sha256,
+            "values_sha256": values_sha256,
+            "values": values,
+        }
+        (session.directory / values_filename).write_text(
+            json.dumps(values_payload, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
         result.update({
             "source_sha256": source_sha256,
             "manifest_revision": manifest_revision,
@@ -528,6 +684,11 @@ async def export_session(session_id: str, payload: dict[str, Any]) -> dict[str, 
             "output_sha256": output_sha256,
             "fill": result,
             "output_filename": output.name,
+            "values_filename": values_filename,
+            "values_url": (
+                f"/api/sessions/{session_id}/values?revision={manifest_revision}"
+                f"&manifest_sha256={manifest_sha256}&values_sha256={values_sha256}"
+            ),
             "download_url": (
                 f"/api/sessions/{session_id}/download?revision={manifest_revision}"
                 f"&manifest_sha256={manifest_sha256}&values_sha256={values_sha256}"
@@ -579,6 +740,51 @@ def download(session_id: str, revision: int | None = None,
         if receipt.get("output_sha256") != _sha256(output):
             raise HTTPException(status_code=409, detail="export output hash does not match its receipt")
         return FileResponse(output, media_type="application/pdf", filename="editable-form.pdf")
+
+
+@app.get("/api/sessions/{session_id}/values")
+def session_values(session_id: str, revision: int | None = None,
+                   manifest_sha256: str | None = None,
+                   values_sha256: str | None = None) -> FileResponse:
+    """The exact values behind one accepted export revision, bound to its
+    receipt the same way the filled PDF is. Automation consumers get
+    machine-readable answers instead of re-extracting them from the PDF."""
+    session = _session_or_404(session_id)
+    with session.lock:
+        receipt_path = session.directory / "latest-export-receipt.json"
+        if revision is not None or manifest_sha256 is not None or values_sha256 is not None:
+            if revision is None or manifest_sha256 is None or values_sha256 is None:
+                raise HTTPException(status_code=400, detail="revision, manifest_sha256, and values_sha256 are required together")
+            receipt_path = session.directory / (
+                f"export-receipt-r{revision}-{manifest_sha256[:16]}-{values_sha256[:16]}.json")
+        if not receipt_path.is_file():
+            raise HTTPException(status_code=404, detail="export revision not found")
+        try:
+            receipt = json.loads(receipt_path.read_text(encoding="utf-8"))
+        except json.JSONDecodeError as exc:
+            raise HTTPException(status_code=500, detail="export receipt is invalid") from exc
+        if revision is not None and (
+            receipt.get("manifest_revision") != revision
+            or receipt.get("manifest_sha256") != manifest_sha256
+            or receipt.get("values_sha256") != values_sha256
+        ):
+            raise HTTPException(status_code=409, detail="export identity does not match its receipt")
+        if receipt.get("source_sha256") != _sha256(session.source):
+            raise HTTPException(status_code=409, detail="source changed since export")
+        values_name = receipt.get("values_filename")
+        if not isinstance(values_name, str) or Path(values_name).name != values_name:
+            raise HTTPException(status_code=500, detail="export receipt has an unsafe values path")
+        values_file = session.directory / values_name
+        if not values_file.is_file():
+            raise HTTPException(status_code=404, detail="export values not found")
+        try:
+            stored = json.loads(values_file.read_text(encoding="utf-8"))
+        except json.JSONDecodeError as exc:
+            raise HTTPException(status_code=500, detail="export values file is invalid") from exc
+        if stored.get("values_sha256") != _values_sha256(stored.get("values", {})):
+            raise HTTPException(status_code=409, detail="export values do not match their receipt")
+        return FileResponse(values_file, media_type="application/json",
+                            filename=f"values-r{receipt.get('manifest_revision')}.json")
 
 
 if __name__ == "__main__":

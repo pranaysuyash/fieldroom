@@ -42,7 +42,7 @@
         </aside>
 
         <section class="canvas-column">
-          <div class="canvas-toolbar"><div><span class="eyebrow">Document canvas</span><h2 id="page-title">Page 1</h2></div><div class="toolbar-actions"><button id="add-target" class="secondary-button">＋ Add target</button><button id="zoom-out" class="icon-button">−</button><span id="zoom-label">100%</span><button id="zoom-in" class="icon-button">+</button><button id="export-button" class="primary-button">Export PDF</button></div></div>
+          <div class="canvas-toolbar"><div><span class="eyebrow">Document canvas</span><h2 id="page-title">Page 1</h2></div><div class="toolbar-actions"><button id="add-target" class="secondary-button">＋ Add target</button><button id="zoom-out" class="icon-button">−</button><span id="zoom-label">100%</span><button id="zoom-in" class="icon-button">+</button><button id="export-button" class="primary-button">Export PDF</button><a id="values-link" class="values-link hidden" download>values (JSON)</a></div></div>
           <div id="canvas-scroll" class="canvas-scroll"><div id="page-stage" class="page-stage"><img id="page-image" alt="PDF page preview"><div id="target-layer"></div><div id="inline-editor-layer"></div></div></div>
           <div id="canvas-status" class="canvas-status">Select a highlighted region to type directly on the page.</div>
         </section>
@@ -60,6 +60,7 @@
             <div id="field-control"></div>
             <div class="geometry-editor"><div class="geometry-head"><span>Position and size</span><small>PDF points</small></div><div class="geometry-grid"><label>X<input id="field-x" type="number" min="0" step="0.1"></label><label>Y<input id="field-y" type="number" min="0" step="0.1"></label><label>Width<input id="field-width" type="number" min="4" step="0.1"></label><label>Height<input id="field-height" type="number" min="4" step="0.1"></label></div></div>
             <div class="field-meta"><div><span>Type</span><strong id="field-type">—</strong></div><div><span>Confidence</span><strong id="field-confidence">—</strong></div><div><span>Source</span><strong id="field-source">—</strong></div></div>
+            <div id="field-flags" class="field-flags" aria-live="polite"></div>
             <label class="check-row"><input id="field-confirmed" type="checkbox"><span>Mark this target reviewed</span></label>
             <button id="reject-target" class="reject-button" type="button">Reject target</button>
             <div id="field-note" class="field-note"></div>

@@ -36,3 +36,30 @@ def test_browser_review_targets_do_not_paint_over_source_document():
     assert ".target { position:absolute; display:flex; align-items:flex-start; justify-content:flex-start; padding:0; border:1px solid" in STYLES
     assert ".target.review { border-color:rgba(203,139,22,.68); background:transparent; }" in STYLES
     assert ".target:hover,.target.selected { border-color:rgba(23,107,98,.7); background:rgba(23,107,98,.02); box-shadow:none; }" in STYLES
+
+
+def test_browser_review_triage_has_keyboard_flow_and_confidence_queue():
+    assert 'document.addEventListener("keydown"' in APP
+    assert "nextPendingTarget" in APP
+    assert 'event.key === "j"' in APP
+    assert 'event.key === "a"' in APP
+    assert 'event.key === "x"' in APP
+    assert 'state.sortMode === "confidence" ? "Worst confidence first" : "Document order"' in APP
+    assert "(a.confidence - b.confidence)" in APP
+    # Editing must never be hijacked: keys are ignored inside form controls.
+    assert "node.closest(\"input, textarea, select, [contenteditable='true']\")" in APP
+    assert ".filter-button.sort-toggle" in STYLES
+
+
+def test_browser_surface_required_and_conditional_field_governance():
+    assert 'id="field-flags"' in (ROOT / "browser" / "index.html").read_text(encoding="utf-8")
+    assert "Mark required" in APP
+    assert "Required at export" in APP
+    assert "Conditional on" in APP
+    assert ".field-flag.required" in STYLES
+
+
+def test_browser_offers_values_download_after_export():
+    assert 'id="values-link"' in (ROOT / "browser" / "index.html").read_text(encoding="utf-8")
+    assert "data.values_url" in APP
+    assert ".values-link.hidden" in STYLES
