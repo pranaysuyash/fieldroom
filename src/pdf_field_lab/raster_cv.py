@@ -12,17 +12,113 @@ from typing import Any
 from .models import BBox, Evidence, FieldSpec
 
 
-def _render_pages(path: Path, dpi: int = 150):
+def _render_pages(path: Path, dpi: int = 150, *, pages: set[int] | None = None):
     import pymupdf
     scale = dpi / 72.0
     matrix = pymupdf.Matrix(scale, scale)
     document = pymupdf.open(str(path))
     try:
-        for page in document:
+        for index, page in enumerate(document, 1):
+            if pages is not None and index not in pages:
+                continue
             pixmap = page.get_pixmap(matrix=matrix, alpha=False)
-            yield pixmap
+            if pages is not None:
+                yield index, pixmap
+            else:
+                yield pixmap
     finally:
         document.close()
+
+
+def _estimate_skew_angle(mask, page_scale: float) -> float:
+    """Estimate small scanner skew angle in degrees from horizontal form structure."""
+    import cv2
+    import numpy as np
+
+    lines = cv2.HoughLinesP(
+        mask,
+        rho=1.0,
+        theta=np.pi / 1800.0,
+        threshold=max(25, int(35 * page_scale)),
+        minLineLength=max(30, int(45 * page_scale)),
+        maxLineGap=max(4, int(8 * page_scale)),
+    )
+    if lines is None:
+        return 0.0
+    angles: list[float] = []
+    for entry in lines:
+        coords = entry.reshape(-1)
+        if coords.size < 4:
+            continue
+        x1, y1, x2, y2 = coords[:4]
+        dx = float(x2 - x1)
+        dy = float(y2 - y1)
+        if abs(dx) < 20 * page_scale:
+            continue
+        angle = float(np.degrees(np.arctan2(dy, dx)))
+        if -6.5 <= angle <= 6.5:
+            angles.append(angle)
+    if len(angles) < 2:
+        return 0.0
+    median_angle = float(np.median(angles))
+    return median_angle if abs(median_angle) >= 0.35 else 0.0
+
+
+def _preprocess_scan_page(image, page_scale: float):
+    """Normalize illumination, deskew small rotations, and build a contour mask + OCR image.
+
+    Returns ``(binary_mask, ocr_pil_image, skew_degrees)``. On clean digital-white
+    raster pages this reduces to the classic threshold while recovering boxes and
+    underlines on shaded, low-contrast, faint-stroke, or slightly skewed scans.
+    """
+    import cv2
+    import numpy as np
+    from PIL import Image
+
+    gray = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
+    sigma = max(15.0, round(12.0 * page_scale, 1))
+    background = cv2.GaussianBlur(gray, (0, 0), sigmaX=sigma)
+    diff = cv2.subtract(background, gray)
+
+    # Estimate paper noise floor from the lower 75% of pixel differences
+    noise_floor = float(np.percentile(diff, 75))
+    if noise_floor > 2.0:
+        # Light median filter suppresses salt-and-pepper scanner speckle before diff
+        denoised_gray = cv2.medianBlur(gray, 3)
+        background = cv2.GaussianBlur(denoised_gray, (0, 0), sigmaX=sigma)
+        diff = cv2.subtract(background, denoised_gray)
+        noise_floor = float(np.percentile(diff, 75))
+
+    foreground_samples = diff[diff > max(4.0, noise_floor + 3.0)]
+    stroke_strength = float(np.percentile(foreground_samples, 85)) if foreground_samples.size else 0.0
+    if stroke_strength > 0.0 and stroke_strength < 48.0:
+        # Faint/washed-out strokes: lower threshold proportionally above noise floor
+        cutoff = max(8, int(max(noise_floor * 2.5 + 5.0, stroke_strength * 0.42)))
+    else:
+        cutoff = max(18, min(34, int(noise_floor * 3.0 + 16.0)))
+
+    mask = cv2.threshold(diff, cutoff, 255, cv2.THRESH_BINARY)[1]
+
+    skew_angle = _estimate_skew_angle(mask, page_scale)
+    if abs(skew_angle) >= 0.35:
+        height, width = gray.shape[:2]
+        center = (width / 2.0, height / 2.0)
+        rot_mat = cv2.getRotationMatrix2D(center, skew_angle, 1.0)
+        gray = cv2.warpAffine(gray, rot_mat, (width, height), flags=cv2.INTER_LINEAR, borderMode=cv2.BORDER_REPLICATE)
+        mask = cv2.warpAffine(mask, rot_mat, (width, height), flags=cv2.INTER_NEAREST, borderMode=cv2.BORDER_CONSTANT, borderValue=0)
+        background = cv2.GaussianBlur(gray, (0, 0), sigmaX=sigma)
+        diff = cv2.subtract(background, gray)
+
+    # Enhance OCR image when background is dark/shaded or strokes are faint
+    bg_median = float(np.median(gray))
+    if bg_median < 235.0 or (0.0 < stroke_strength < 55.0):
+        scale_factor = 255.0 / max(stroke_strength, 32.0)
+        enhanced = np.clip(255.0 - diff.astype(np.float32) * min(scale_factor, 4.5), 0, 255).astype(np.uint8)
+        ocr_pil = Image.fromarray(enhanced).convert("RGB")
+    else:
+        ocr_pil = Image.fromarray(gray).convert("RGB")
+
+    return mask, ocr_pil, skew_angle
 
 
 def run_cv_probe(path: Path, dpi: int = 150) -> dict[str, Any]:
@@ -31,10 +127,10 @@ def run_cv_probe(path: Path, dpi: int = 150) -> dict[str, Any]:
     import numpy as np
 
     pages = []
+    page_scale = dpi / 72.0
     for page_number, pixmap in enumerate(_render_pages(path, dpi), 1):
         image = np.frombuffer(pixmap.samples, dtype=np.uint8).reshape(pixmap.height, pixmap.width, pixmap.n)
-        gray = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
-        threshold = cv2.threshold(gray, 220, 255, cv2.THRESH_BINARY_INV)[1]
+        threshold, _, skew_angle = _preprocess_scan_page(image, page_scale)
         contours, _ = cv2.findContours(threshold, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
         rectangles = 0
         for contour in contours:
@@ -47,7 +143,8 @@ def run_cv_probe(path: Path, dpi: int = 150) -> dict[str, Any]:
             if len(approx) == 4 and width >= 12 and height >= 12:
                 rectangles += 1
         pages.append({"page": page_number, "width": pixmap.width, "height": pixmap.height,
-                      "contours": len(contours), "rectangular_contours": rectangles})
+                      "contours": len(contours), "rectangular_contours": rectangles,
+                      "skew_degrees": round(skew_angle, 2)})
     return {"dpi": dpi, "pages": pages, "note": "visual evidence only; no semantic promotion"}
 
 
@@ -68,7 +165,34 @@ def run_ocr_probe(path: Path, dpi: int = 150) -> dict[str, Any]:
     return {"dpi": dpi, "pages": pages, "note": "OCR evidence only; profile remains authoritative"}
 
 
-def detect_raster_targets(path: Path, dpi: int = 150, *, max_per_page: int = 80) -> list[FieldSpec]:
+def _extract_ocr_words(ocr_image) -> list[dict[str, Any]]:
+    import pytesseract
+    from pytesseract import Output
+
+    ocr = pytesseract.image_to_data(ocr_image, output_type=Output.DICT, config="--psm 6")
+    words: list[dict[str, Any]] = []
+    for index, text in enumerate(ocr.get("text", [])):
+        text = str(text).strip()
+        if not text:
+            continue
+        words.append({
+            "text": text,
+            "x0": float(ocr["left"][index]),
+            "top": float(ocr["top"][index]),
+            "x1": float(ocr["left"][index] + ocr["width"][index]),
+            "bottom": float(ocr["top"][index] + ocr["height"][index]),
+        })
+    return words
+
+
+def detect_raster_targets(
+    path: Path,
+    dpi: int = 150,
+    *,
+    max_per_page: int = 80,
+    pages: set[int] | None = None,
+    warnings_out: list[str] | None = None,
+) -> list[FieldSpec]:
     """Find review-only semantic targets on pages without a usable text layer.
 
     CV supplies candidate rectangles and OCR supplies nearby labels. Neither is
@@ -78,11 +202,14 @@ def detect_raster_targets(path: Path, dpi: int = 150, *, max_per_page: int = 80)
     """
     import cv2
     import numpy as np
-    import pytesseract
-    from PIL import Image
-    from pytesseract import Output
 
-    from .semantic_detect import _has_explicit_field_cue, _nearby_label, classify_label
+    from .semantic_detect import (
+        _clean,
+        _cluster_character_grids,
+        _has_explicit_field_cue,
+        _nearby_label,
+        classify_label,
+    )
     from .label_ner import extract_label_entities
 
     def overlap_ratio(first: BBox, second: BBox) -> float:
@@ -95,36 +222,84 @@ def detect_raster_targets(path: Path, dpi: int = 150, *, max_per_page: int = 80)
         return intersection / smaller_area if smaller_area else 0.0
 
     targets: list[FieldSpec] = []
-    for page_number, pixmap in enumerate(_render_pages(path, dpi), 1):
-        image = np.frombuffer(pixmap.samples, dtype=np.uint8).reshape(pixmap.height, pixmap.width, pixmap.n)
-        gray = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
-        threshold = cv2.threshold(gray, 220, 255, cv2.THRESH_BINARY_INV)[1]
-        contours, _ = cv2.findContours(threshold, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
-        ocr = pytesseract.image_to_data(Image.frombytes("RGB", (pixmap.width, pixmap.height), pixmap.samples),
-                                        output_type=Output.DICT, config="--psm 6")
-        words = []
-        for index, text in enumerate(ocr.get("text", [])):
-            text = str(text).strip()
-            if not text:
-                continue
-            words.append({
-                "text": text,
-                "x0": float(ocr["left"][index]), "top": float(ocr["top"][index]),
-                "x1": float(ocr["left"][index] + ocr["width"][index]),
-                "bottom": float(ocr["top"][index] + ocr["height"][index]),
-            })
-        page_scale = dpi / 72.0
+    page_scale = dpi / 72.0
+    rendered_iter = (
+        _render_pages(path, dpi, pages=pages)
+        if pages is not None
+        else enumerate(_render_pages(path, dpi), 1)
+    )
+    for page_number, pixmap in rendered_iter:
+        try:
+            image = np.frombuffer(pixmap.samples, dtype=np.uint8).reshape(pixmap.height, pixmap.width, pixmap.n)
+            threshold, ocr_image, _ = _preprocess_scan_page(image, page_scale)
+            contours, _ = cv2.findContours(threshold, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
+            words = _extract_ocr_words(ocr_image)
+        except Exception as exc:
+            if warnings_out is not None:
+                warnings_out.append(f"Raster detection failed on page {page_number}: {type(exc).__name__}")
+            continue
+        words_pts = [
+            {
+                "text": w["text"],
+                "x0": float(w["x0"]) / page_scale,
+                "top": float(w["top"]) / page_scale,
+                "x1": float(w["x1"]) / page_scale,
+                "bottom": float(w["bottom"]) / page_scale,
+            }
+            for w in words
+        ]
         seen: set[tuple[int, int, int, int, str]] = set()
         candidates: list[FieldSpec] = []
         geometry_regions: list[BBox] = []
+
+        # Cluster adjacent character-box contours into comb-grid rows before individual contour evaluation
+        raw_boxes_pts: list[BBox] = []
+        seen_box_pts: set[tuple[int, int, int, int]] = set()
         for contour in contours:
+            x, y, width, height = cv2.boundingRect(contour)
+            w_pt, h_pt = width / page_scale, height / page_scale
+            x_pt, y_pt = x / page_scale, y / page_scale
+            if 10.0 <= w_pt <= 26.0 and 10.0 <= h_pt <= 22.0:
+                bkey = (round(x_pt / 2) * 2, round(y_pt / 2) * 2, round(w_pt / 2) * 2, round(h_pt / 2) * 2)
+                if bkey not in seen_box_pts:
+                    seen_box_pts.add(bkey)
+                    raw_boxes_pts.append(BBox(round(x_pt, 3), round(y_pt, 3), round(w_pt, 3), round(h_pt, 3)))
+
+        comb_grids, _ = _cluster_character_grids(raw_boxes_pts)
+        for grid_box in comb_grids:
+            geometry_regions.append(grid_box)
+            label = _nearby_label(words_pts, grid_box)
+            if not _has_explicit_field_cue(label):
+                continue
+            kind, score, detail = classify_label(label, region=grid_box, page_height=pixmap.height / page_scale)
+            strategy = "acroform-text"
+            key = (round(grid_box.x), round(grid_box.y), round(grid_box.width), round(grid_box.height), kind)
+            if key in seen or any(existing.kind == kind and overlap_ratio(existing.bbox, grid_box) >= 0.65
+                                   for existing in candidates):
+                continue
+            seen.add(key)
+            candidates.append(FieldSpec(
+                id=f"raster-target-{page_number}-{len(candidates):04d}", page=page_number,
+                label=label, kind=kind, bbox=grid_box,
+                editable_strategy=strategy, review_required=True, confidence=min(score, 0.79),
+                evidence=[Evidence("raster_cv", min(score, 0.79),
+                                   f"OCR label plus raster character comb-grid; {detail}")],
+                notes=["Raster/OCR candidate; confirm position and meaning before export."],
+                label_entities=extract_label_entities(label),
+            ))
+            if len(candidates) >= max_per_page:
+                break
+
+        for contour in contours:
+            if len(candidates) >= max_per_page:
+                break
             area = cv2.contourArea(contour)
             perimeter = cv2.arcLength(contour, True)
             approx = cv2.approxPolyDP(contour, 0.03 * perimeter, True)
             x, y, width, height = cv2.boundingRect(contour)
-            is_square = (7 * page_scale <= width <= 32 * page_scale and
-                         7 * page_scale <= height <= 32 * page_scale and
-                         abs(width - height) <= 4 * page_scale)
+            is_square = (11 * page_scale <= width <= 32 * page_scale and
+                         11 * page_scale <= height <= 32 * page_scale and
+                         abs(width - height) <= 5 * page_scale)
             is_line = width >= 24 * page_scale and height <= 6 * page_scale
             is_large = (width >= 55 * page_scale and height >= 20 * page_scale
                         and width / max(height, 1) < 18.0)
@@ -139,12 +314,24 @@ def detect_raster_targets(path: Path, dpi: int = 150, *, max_per_page: int = 80)
                 continue
             region = BBox(round(x / page_scale, 3), round(y / page_scale, 3),
                           round(width / page_scale, 3), round(height / page_scale, 3))
-            pixel_region = BBox(float(x), float(y), float(width), float(height))
+            if any(overlap_ratio(grid_box, region) >= 0.5 for grid_box in comb_grids):
+                continue
             geometry_regions.append(region)
-            label = _nearby_label(words, pixel_region)
+            label = _nearby_label(words_pts, region)
+            if is_large and 55 <= region.width <= 220 and 55 <= region.height <= 220:
+                inside_words = [
+                    w["text"] for w in words_pts
+                    if w["x0"] >= region.x - 4 and w["x1"] <= region.x + region.width + 4
+                    and w["top"] >= region.y - 4 and w["bottom"] <= region.y + region.height + 4
+                ]
+                inside_text = _clean(" ".join(inside_words))
+                if any(cue in inside_text for cue in ("photograph", "passport photo", "paste photo", "pasting")):
+                    label = " ".join(inside_words[:6])
             if not _has_explicit_field_cue(label):
                 continue
             kind, score, detail = classify_label(label, region=region, page_height=pixmap.height / page_scale)
+            if is_square and kind == "text":
+                kind = "choice"
             strategy = "visual-overlay-image" if kind in {"image", "signature"} else "acroform-checkbox" if kind == "choice" else "acroform-text"
             key = (round(region.x), round(region.y), round(region.width), round(region.height), kind)
             if key in seen or any(existing.kind == kind and overlap_ratio(existing.bbox, region) >= 0.65

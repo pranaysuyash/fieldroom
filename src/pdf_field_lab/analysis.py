@@ -70,21 +70,35 @@ def analyze(path: Path, *, run_cv: bool = False, run_ocr: bool = False,
     model = None
     if advisory_requested and model_path.is_file():
         model = _load_advisory_model(str(model_path))
-    generic = detect_semantic_targets(path, model=model)
+    warnings = []
+    try:
+        generic = detect_semantic_targets(path, model=model, warnings_out=warnings)
+    except TypeError:
+        generic = detect_semantic_targets(path, model=model)
     native = detect_native_targets(inspection)
     raster = []
     raster_attempted = False
     signature_observations = []
-    warnings = []
+    text_poor_pages = {
+        page_num for page_num, chars in enumerate(inspection.text_chars_by_page, 1)
+        if chars < 100
+    }
     profile_matched = matches_form6(path)
     if profile_matched:
         logical = form6_fields()
     else:
-        if run_raster and any(chars < 100 for chars in inspection.text_chars_by_page):
+        if run_raster and text_poor_pages:
             try:
                 from .raster_cv import detect_raster_targets
                 raster_attempted = True
-                raster = detect_raster_targets(path)
+                try:
+                    raster = detect_raster_targets(
+                        path,
+                        pages=text_poor_pages,
+                        warnings_out=warnings,
+                    )
+                except TypeError:
+                    raster = detect_raster_targets(path)
             except (ImportError, OSError, RuntimeError) as exc:
                 warnings.append(f"Raster semantic detection unavailable: {type(exc).__name__}")
         logical = _merge_page_lanes(native, generic, raster)
@@ -93,7 +107,7 @@ def analyze(path: Path, *, run_cv: bool = False, run_ocr: bool = False,
             warnings.append("Detection lanes were merged per page; native widgets take precedence only for overlapping regions.")
     if not inspection.native_fields:
         warnings.append("No native AcroForm fields found; logical fields are reconstructed candidates.")
-    if any(chars < 100 for chars in inspection.text_chars_by_page):
+    if text_poor_pages:
         warnings.append("At least one page is text-poor; OCR/CV should be enabled for scanned inputs.")
     try:
         signature_observations = detect_signature_observations(path)
@@ -107,6 +121,11 @@ def analyze(path: Path, *, run_cv: bool = False, run_ocr: bool = False,
         "target_model": ("loaded-advisory" if model is not None else "not-loaded")
         if advisory_requested else "disabled-by-operator",
         "raster_semantic_detection": "executed" if raster_attempted else "not-needed-or-no-candidates",
+        "raster_routed_pages": (
+            ",".join(str(p) for p in sorted(text_poor_pages))
+            if (raster_attempted and text_poor_pages)
+            else "none"
+        ),
         "raster_target_count": str(len(raster)),
         "ocr_selection": "page-routed-by-text-density",
         "cv_execution": "not-requested",

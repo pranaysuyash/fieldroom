@@ -36,6 +36,28 @@ milestone-based semver.
 - Viewer-compatibility receipts: automated reopen checks (strict pypdf,
   PyMuPDF render, qpdf) plus a human viewer-pass runbook
   (`docs/runbooks/viewer-verification.md`).
+- Scanned-form preprocessing pipeline (`FFL-SCAN-001`): local Gaussian
+  illumination normalization, conditional median denoising, adaptive
+  faint-stroke thresholding, OCR contrast stretching, and Hough line
+  small-angle deskew in `src/pdf_field_lab/raster_cv.py`, documented with a
+  4-variant × 4-regime ablation study
+  (`docs/exploration/2026-10-16-scanned-form-preprocessing-ablation.md`).
+- Page-local raster routing and per-page failure isolation (`FFL-MIX-007`):
+  `analyze()` routes `detect_raster_targets` only to text-poor pages
+  (`chars < 100`) and isolates per-page semantic and raster exceptions into
+  `report.warnings`.
+- Hierarchical AcroForm inheritance (`FFL-NAT-003`): `inspect_pdf.py` and
+  `native_detect.py` resolve `/T`, `/FT`, `/Ff`, `/Opt`, and `/TU` across
+  `/Parent` chains, guard against `PdfReadError` when button child widgets
+  omit `/AP`, and disambiguate multi-widget IDs.
+- Browser workspace restoration and governance UI (`FFL-REV-014`,
+  `FFL-FILL-015`, `FFL-SESS-016`): restored missing layout/component CSS in
+  `browser/styles.css`, responsive page scaling + `Fit` zoom reset, hover/selected
+  canvas label decluttering + `Labels` toggle, live field search, `k`
+  previous-unreviewed shortcut, interactive `conditional_on` rule editor,
+  Choice single/multi-select mode toggle, transparent typed signatures,
+  session-resumed banner, `Reset` fresh-session button, and one-click JSONL
+  download links for `review-candidates.jsonl` and `review-receipts.jsonl`.
 
 ### Changed
 

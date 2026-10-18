@@ -15,6 +15,7 @@ import fitz
 from fastapi.testclient import TestClient
 from pypdf import PdfReader
 
+from conftest import fill_required_values
 from pdf_field_lab.server import app
 
 FIXTURE = Path(__file__).parents[1] / "data" / "samples" / "RAr0Lq2Avu.pdf"
@@ -33,7 +34,7 @@ def _exported_pdf_bytes():
         put = client.put(f"/api/sessions/{session['session_id']}/manifest", json=manifest)
         assert put.status_code == 200, put.text
         export = client.post(f"/api/sessions/{session['session_id']}/export",
-                             json={"values": {"F6-05": "Compat Check"}})
+                             json={"values": fill_required_values(manifest, {"F6-05": "Compat Check"})})
         assert export.status_code == 200, export.text
         pdf = client.get(export.json()["download_url"])
         assert pdf.status_code == 200

@@ -1,0 +1,33 @@
+{
+  "session_id": "76af687960f7429c92e18b28a61a3ed6",
+  "source_sha256": "2cf1421343c22676f15eff0ec6f31a4df6e7f7975dc0f3d88d2b29a1dcc79d34",
+  "manifest_revision": 1,
+  "manifest_sha256": "e3cfa15cfa2d0e1de55632d9b154b1f09b80087ca3ec8311b3f20d411b153953",
+  "values_sha256": "5ec7aa505e34a203232a459989f5c7aa8e5b17a9cd262642a00c31a63bd32960",
+  "output_sha256": "5896488c788c97100d7bdbb5baf3e3ad6e492d6404396502e25f86d038eaab38",
+  "fill": {
+    "output": "/var/folders/fc/xwynjqm94t39_jvz88fhcpfc0000gn/T/pdf-field-lab-sessions/76af687960f7429c92e18b28a61a3ed6/filled-r1-e3cfa15cfa2d0e1d-5ec7aa505e34a203.pdf",
+    "text_fields_filled": [
+      "F6-10"
+    ],
+    "character_grid_fields_filled": [
+      "F6-05"
+    ],
+    "choice_fields_matched": [
+      "F6-09"
+    ],
+    "image_or_signature_regions_placed": [],
+    "reopen_pages": 2,
+    "reopen_native_fields": 54,
+    "source_sha256": "2cf1421343c22676f15eff0ec6f31a4df6e7f7975dc0f3d88d2b29a1dcc79d34",
+    "manifest_revision": 1,
+    "manifest_sha256": "e3cfa15cfa2d0e1de55632d9b154b1f09b80087ca3ec8311b3f20d411b153953",
+    "values_sha256": "5ec7aa505e34a203232a459989f5c7aa8e5b17a9cd262642a00c31a63bd32960",
+    "output_sha256": "5896488c788c97100d7bdbb5baf3e3ad6e492d6404396502e25f86d038eaab38",
+    "output_filename": "filled-r1-e3cfa15cfa2d0e1d-5ec7aa505e34a203.pdf"
+  },
+  "output_filename": "filled-r1-e3cfa15cfa2d0e1d-5ec7aa505e34a203.pdf",
+  "values_filename": "values-r1-5ec7aa505e34a203.json",
+  "values_url": "/api/sessions/76af687960f7429c92e18b28a61a3ed6/values?revision=1&manifest_sha256=e3cfa15cfa2d0e1de55632d9b154b1f09b80087ca3ec8311b3f20d411b153953&values_sha256=5ec7aa505e34a203232a459989f5c7aa8e5b17a9cd262642a00c31a63bd32960",
+  "download_url": "/api/sessions/76af687960f7429c92e18b28a61a3ed6/download?revision=1&manifest_sha256=e3cfa15cfa2d0e1de55632d9b154b1f09b80087ca3ec8311b3f20d411b153953&values_sha256=5ec7aa505e34a203232a459989f5c7aa8e5b17a9cd262642a00c31a63bd32960"
+}

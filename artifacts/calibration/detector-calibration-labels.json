@@ -5,7 +5,7 @@
     "minor": 0
   },
   "fixture": "artifacts/calibration/detector-calibration.pdf",
-  "sourceSha256": "239cdfaf06a235ff3cf14760b4e0ef59fa6fdd323f3d648e6030df2ab2dec9e8",
+  "sourceSha256": "4ed23a6eda5ead9497dc43c4bb71c0a734675963161ad0daccbfd9f689286c50",
   "coordinateSpace": {
     "unit": "points",
     "origin": "lowerLeft",

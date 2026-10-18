@@ -70,7 +70,7 @@ Open `http://127.0.0.1:8787`, drop in a flat PDF, and review what the detectors 
 Run the checks:
 
 ```bash
-pytest --cov=pdf_field_lab   # 98 tests, 85% coverage ratchet
+pytest --cov=pdf_field_lab   # 100+ tests, >85% coverage ratchet
 ruff check .
 ```
 

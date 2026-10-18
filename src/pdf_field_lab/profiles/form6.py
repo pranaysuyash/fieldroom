@@ -68,12 +68,20 @@ def form6_fields() -> list[FieldSpec]:
         _f("F6-08", 1, "English surname in block letters", "text", 114, 340, 359, 29,
            notes=["Type the full surname once; the export adapter distributes characters across the printed boxes."],
            input_mode="character-grid", max_length=28),
+        # DRAFT requiredness map (FFL-D-requiredness-map): the blank form's
+        # own printing asterisks only section 2(a)/(2)(b), the relative-details
+        # pair. The two language variants are either/or; "=!" marks a target
+        # required only while its sibling is unfilled. Pending owner
+        # verification against the ECI instruction sheet.
         _f("F6-09", 1, "Relative type", "choice", 18, 388, 430, 49, "acroform-radio",
+           required=True,
            options=_choice_options([("father", 32, 389, 22, 18), ("mother", 130, 389, 22, 18),
                                     ("husband", 248, 389, 22, 18), ("wife", 364, 389, 22, 18),
                                     ("legal_guardian_or_guru", 32, 410, 22, 18)])),
-        _f("F6-10", 1, "Relative name in official language", "text", 17, 430, 560, 17),
-        _f("F6-11", 1, "Relative name in English in block letters", "text", 17, 468, 560, 17),
+        _f("F6-10", 1, "Relative name in official language", "text", 17, 430, 560, 17,
+           required=True, conditional_on="F6-11=!"),
+        _f("F6-11", 1, "Relative name in English in block letters", "text", 17, 468, 560, 17,
+           required=True, conditional_on="F6-10=!"),
         _f("F6-12", 1, "Mobile number", "text", 301, 489, 195, 28,
            notes=["Type the full number once; the export adapter distributes digits across both printed rows."],
            input_mode="character-grid", max_length=20,

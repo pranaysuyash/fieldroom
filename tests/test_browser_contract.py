@@ -63,3 +63,47 @@ def test_browser_offers_values_download_after_export():
     assert 'id="values-link"' in (ROOT / "browser" / "index.html").read_text(encoding="utf-8")
     assert "data.values_url" in APP
     assert ".values-link.hidden" in STYLES
+
+
+def test_browser_defines_all_critical_layout_and_component_styles():
+    required_selectors = (
+        ".canvas-column",
+        ".canvas-toolbar",
+        ".toolbar-actions",
+        ".primary-button",
+        ".secondary-button",
+        ".canvas-scroll",
+        "#page-image",
+        ".inspector",
+        ".empty-inspector",
+        ".inspector-icon",
+        ".control-label",
+        ".control-input",
+        ".field-meta",
+        ".kind-pill",
+        ".check-row",
+        ".toast",
+        ".security-pill",
+        ".session-banner",
+        ".governance-links",
+        ".artifact-link",
+        ".shortcuts-popover",
+    )
+    for selector in required_selectors:
+        assert selector in STYLES, f"Missing CSS rule for {selector}"
+
+
+def test_browser_exposes_review_governance_links_and_session_reset():
+    html = (ROOT / "browser" / "index.html").read_text(encoding="utf-8")
+    assert 'id="candidates-link"' in html
+    assert 'id="receipts-link"' in html
+    assert 'id="reset-session"' in html
+    assert 'id="field-search"' in html
+    assert "/api/sessions?fresh=true" in APP
+    assert "review-candidates.jsonl" in APP
+    assert "review-receipts.jsonl" in APP
+    assert 'event.key === "k"' in APP
+    assert "prevPendingTarget" in APP
+    assert "openConditionalEditor" in APP
+    assert "ctx.clearRect(0, 0, canvas.width, canvas.height)" in APP
+

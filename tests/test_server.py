@@ -10,16 +10,31 @@ from fastapi.testclient import TestClient
 from pypdf import PdfReader, PdfWriter
 from PIL import Image
 
+from conftest import fill_required_values
 from pdf_field_lab.server import (SESSION_ROOT, SESSION_TTL_SECONDS, SESSIONS, Session,
                                   app, _AUDIT_PATH, _canonical_sha256)
 
 
+import os
+
 FIXTURE = Path(__file__).parents[1] / "data" / "samples" / "RAr0Lq2Avu.pdf"
 LOCAL_CONFIG = Path(__file__).parent / "local" / "medpiper.local.json"
 
+
+def _medpiper_available() -> bool:
+    if not LOCAL_CONFIG.is_file():
+        return False
+    try:
+        cfg = json.loads(LOCAL_CONFIG.read_text(encoding="utf-8"))
+        pdf_path = Path(cfg.get("pdf", ""))
+        return pdf_path.is_file() and os.access(pdf_path, os.R_OK)
+    except OSError:
+        return False
+
+
 _requires_medpiper = pytest.mark.skipif(
-    not LOCAL_CONFIG.is_file(),
-    reason="local Medpiper fixture not configured; see tests/local/README.md",
+    not _medpiper_available(),
+    reason="local Medpiper fixture not configured or not readable in current sandbox; see tests/local/README.md",
 )
 
 
@@ -61,7 +76,7 @@ def test_browser_session_upload_page_and_export_flow():
         assert page.status_code == 200
         assert page.headers["content-type"].startswith("image/png")
         exported = client.post(f"/api/sessions/{session['session_id']}/export", json={
-            "values": {"F6-01": "BROWSER-OFFICE", "F6-04": _png_data_url()}
+            "values": fill_required_values(updated.json(), {"F6-01": "BROWSER-OFFICE", "F6-04": _png_data_url()})
         })
         assert exported.status_code == 200, exported.text
         receipt = exported.json()
@@ -118,7 +133,8 @@ def test_export_rebuilds_from_accepted_manifest_revision():
     with TestClient(app) as client:
         updated = client.put(f"/api/sessions/{session['session_id']}/manifest", json=manifest)
         assert updated.status_code == 200, updated.text
-        exported = client.post(f"/api/sessions/{session['session_id']}/export", json={"values": {}})
+        exported = client.post(f"/api/sessions/{session['session_id']}/export",
+                               json={"values": fill_required_values(manifest)})
         assert exported.status_code == 200, exported.text
         receipt = exported.json()
         downloaded = client.get(receipt["download_url"])
@@ -152,10 +168,10 @@ def test_download_url_is_bound_to_manifest_and_values_revision():
         updated = client.put(f"/api/sessions/{session['session_id']}/manifest", json=manifest)
         assert updated.status_code == 200, updated.text
         first = client.post(f"/api/sessions/{session['session_id']}/export", json={
-            "values": {"F6-01": "FIRST-VALUE"},
+            "values": fill_required_values(manifest, {"F6-01": "FIRST-VALUE"}),
         })
         second = client.post(f"/api/sessions/{session['session_id']}/export", json={
-            "values": {"F6-01": "SECOND-VALUE"},
+            "values": fill_required_values(manifest, {"F6-01": "SECOND-VALUE"}),
         })
         assert first.status_code == 200 and second.status_code == 200
         first_receipt = first.json()
@@ -417,7 +433,7 @@ def test_export_accepts_filled_required_fields():
     with TestClient(app) as client:
         assert client.put(f"/api/sessions/{session['session_id']}/manifest", json=manifest).status_code == 200
         export = client.post(f"/api/sessions/{session['session_id']}/export",
-                             json={"values": {target_id: "Test Value"}})
+                             json={"values": fill_required_values(manifest, {target_id: "Test Value"})})
         assert export.status_code == 200, export.text
 
 
@@ -438,7 +454,7 @@ def test_conditional_required_is_skipped_until_condition_holds():
         # unfilled trigger itself still blocks export.
         export = client.post(f"/api/sessions/{session['session_id']}/export", json={})
         assert export.status_code == 422
-        values = {trigger["id"]: "selected", dependent["id"]: "filled"}
+        values = fill_required_values(manifest, {trigger["id"]: "selected", dependent["id"]: "filled"})
         ok = client.post(f"/api/sessions/{session['session_id']}/export", json={"values": values})
         assert ok.status_code == 200, ok.text
 
@@ -451,14 +467,14 @@ def test_values_route_serves_identity_bound_json():
     with TestClient(app) as client:
         assert client.put(f"/api/sessions/{session['session_id']}/manifest", json=manifest).status_code == 200
         export = client.post(f"/api/sessions/{session['session_id']}/export",
-                             json={"values": {"F6-05": "Prime Minister"}})
+                             json={"values": fill_required_values(manifest, {"F6-05": "Prime Minister"})})
         assert export.status_code == 200
         body = export.json()
         values = client.get(body["values_url"])
         assert values.status_code == 200
         payload = values.json()
         assert payload["schema"] == "pdf-field-lab.values.v1"
-        assert payload["values"] == {"F6-05": "Prime Minister"}
+        assert payload["values"]["F6-05"] == "Prime Minister"
         broken = body["values_url"].replace("revision=1", "revision=9")
         assert client.get(broken).status_code == 404  # unknown revision: no receipt file
         latest = client.get(f"/api/sessions/{session['session_id']}/values")

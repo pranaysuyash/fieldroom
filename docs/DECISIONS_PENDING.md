@@ -53,8 +53,8 @@
 - **Recommendation:** B, done honestly: sit with the Form-6 instruction sheet during the first review session and mark the map, keeping reviewer overrides. Not urgent; the machinery is in place either way.
 - **Blocked:** first review session (the map authoring rides on it).
 
-## FFL-D-scan-investment (opened 2026-10-15)
-- **Context:** docs/exploration/2026-10-15-scanned-form-product-path.md sequences the scanned-form frontier: preprocessing bake-off first, then the miss taxonomy (IDEA-136), with gold acquisition (IDEA-137) in parallel. The falsifier: if preprocessing plus taxonomy fixes recover fewer than half of visually confirmed regions on Form6_preview, scanned forms should be declared out of scope for this architecture generation.
-- **Options:** A. Fund the preprocessing bake-off now (bounded, existing fixtures). B. Defer until the first review sessions produce some real-scan gold.
-- **Recommendation:** A: it is cheap, runs on existing fixtures, and its result determines whether B is even worth scheduling.
-- **Blocked:** nothing; awaiting the go.
+## FFL-D-scan-investment (opened 2026-10-15; updated 2026-10-18 after the bake-off ran)
+- **Context:** docs/exploration/2026-10-15-scanned-form-product-path.md sequenced the scanned-form frontier. The preprocessing bake-off has now RUN (tools/scan_bakeoff.py, artifacts/scan-bakeoff/report.json): on a rasterized Form-6 proxy the vector lane recovers 36 regions while the raster lane tops out at 22-25 across all preprocessing variants, and mild scan degradation barely moves it. Preprocessing is NOT the bottleneck; the raster lane's region-proposal vocabulary is.
+- **Options:** A. Fund the miss-taxonomy diff next (classify the ~14 missing regions per page; use real-scan gold from IDEA-137 as it arrives). B. Keep tuning preprocessing (evidence now says low-yield). C. Declare scans out of scope for this architecture generation.
+- **Recommendation:** A, revised by evidence: the bake-off overturned the original preprocessing-first recommendation. B is contradicted by measurement; C is premature because 61% proxy recovery shows the lane is not hopeless.
+- **Blocked:** nothing hard; the taxonomy diff is bounded and uses existing fixtures plus arriving gold.

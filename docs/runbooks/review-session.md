@@ -25,20 +25,26 @@ event and receipt.
 
 ## 2. Review
 
-Work page by page through the field list:
+Work page by page through the field list (or use keyboard triage):
 
-- **Accept** (✓ / "mark reviewed") when the detected region, type, and label
-  are right.
+- **Navigate & triage with keyboard**: press `j` for next unreviewed target, `k` for previous unreviewed target, `a` to accept and advance, `x` to reject/restore, `Escape` to exit draw mode, and `?` to open the shortcuts guide.
+- **Search & sort**: filter the Field Map live by label, ID, or entity cue using the search input, toggle `Sort: Low confidence` to triage uncertain detections first, or toggle `Labels` in the canvas toolbar to show/hide all floating canvas callouts at once.
+- **Accept** (✓ / "Mark this target reviewed") when the detected region, type, and label are right.
 - **Reject** a target the detector invented (signal: `false-positive`).
-- **Draw manually** anything real the detector missed (signal:
-  `detector-miss` — this is the gold-dust data).
+- **Draw manually** (`+ Add target`) anything real the detector missed (signal: `detector-miss` — this is the gold-dust data).
 - **Move/resize** wrong boxes (signal: `geometry-correction`).
+- **Required & conditional rules**: use the inspector `Required` chip, `Conditional` rule editor (`<target_id>=<expected_value>`), and Choice `Single-select` / `Multi-select` mode chips as needed.
+- **Session resume vs fresh reset**: re-uploading the same PDF automatically resumes your saved session (`Resumed saved review session` banner in the left rail); click `Reset` next to `Upload` to start a clean session from scratch (`?fresh=true`).
 
 Every manifest save writes review events plus a hash-bound receipt
 (`review-receipts.jsonl` in the session directory, exported via
 `GET /api/sessions/{id}/review-receipts.jsonl`).
 
 ## 3. Export the evidence
+
+You can download both governed JSONL files with one click directly from the
+**Governed review logs** links at the bottom of the left sidebar
+(`Candidates JSONL` and `Receipts JSONL`), or fetch them via `curl`:
 
 ```bash
 SESSION_ID=<from the session payload or browser network tab>

@@ -633,3 +633,22 @@ boundary. Append a dated decision rather than silently rewriting the rationale.
   lane before the next feature lane and before any macOS app porting work.
 - Required revisit condition: any change to repository scope, hook policy, or
   privacy, training, and export boundaries should add a new dated ledger row.
+
+## 2026-10-16 Frontend layout restoration, page-local raster routing, and scanned-form preprocessing ablation
+
+- **Objective:** Close the frontend usability gap on the live browser workspace, eliminate document-wide raster over-execution on mixed PDFs (`FFL-MIX-007`), harden scanned-form CV/OCR preprocessing (`FFL-SCAN-001`), and resolve inherited AcroForm parent-child widget attributes (`FFL-NAT-003`).
+- **Frontend root-cause finding:** Rendered visual inspection at `1440×920` revealed that lines 6–19 of `browser/styles.css` had been overwritten when `.target.target-grid` rules were inserted in the initial commit, leaving `.canvas-column`, `.canvas-toolbar`, `.canvas-scroll`, `.primary-button`, `.secondary-button`, `.inspector`, `.control-label`, `.control-input`, `.field-meta`, `.kind-pill`, `.check-row`, and `.toast` without CSS rules. Consequently, the `1224px` rendered page image overflowed the `1fr` grid track and covered the right-hand inspector, while floating `.target-label` badges obscured the printed PDF text above every box.
+- **Frontend decision & contract:**
+  - Restored all missing layout and component rules in `browser/styles.css`, enforced `min-width: 0; overflow: auto` on grid columns, and replaced CSS `transform: scale()` page zooming with crisp width-based scaling (`baseWidth = Math.round(size.width * 1.15 * state.zoom)`) plus a `Fit` (`100%`) reset button.
+  - Decluttered canvas overlays by keeping the corner `.target-marker` badge visible while showing the floating `.target-label` callout on hover/selection (or globally via the toolbar `Labels` toggle `#toggle-labels`).
+  - Added live Field Map search (`#field-search`), per-page target/unreviewed counts, `k` previous-unreviewed keyboard navigation, interactive `conditional_on` rule authoring (`#conditional-editor`), Choice `single-select` vs `multi-select` toggling, transparent typed-signature rendering, a session-resumed banner (`#session-banner`), a `Reset` fresh-session button (`#reset-session`), and one-click JSONL links (`#candidates-link`, `#receipts-link`).
+  - Locked all critical CSS selectors and DOM contracts into `tests/test_browser_contract.py` (10/10 passing) and updated `tools/oss/assets/review-session.png`.
+- **Mixed-representation routing & failure isolation (`FFL-MIX-007`):**
+  - `analyze()` now computes `text_poor_pages = {idx for idx, chars in enumerate(inspection.text_chars_by_page, 1) if chars < 100}` and passes `pages=text_poor_pages` to `detect_raster_targets`, recording `raster_routed_pages` in `backend_status`.
+  - Both `detect_semantic_targets` and `detect_raster_targets` isolate per-page exceptions into `report.warnings` so a corrupt or unreadable page never aborts detection on healthy pages.
+- **Scanned-form preprocessing ablation (`FFL-SCAN-001`):**
+  - Replaced global `threshold=220` binarization in `src/pdf_field_lab/raster_cv.py` with `_preprocess_scan_page` (Gaussian background subtraction, noise-floor median denoising, adaptive faint-stroke cutoff, OCR contrast stretching, and Hough line small-angle deskew in $[0.35^\circ, 6.5^\circ]$).
+  - Controlled 4-variant × 4-regime ablation (`docs/exploration/2026-10-16-scanned-form-preprocessing-ablation.md`) showed that on faint strokes (`0.88` grey), fixed-threshold `220` recovered `0/5` contours and silently substituted `220×24 pt` whitespace guesses (`0.167` geometry-matched recall), and on shaded or $1.8^\circ$ skewed/noisy scans achieved `0.000` recall; the full `_preprocess_scan_page` pipeline achieved `1.000` geometry-matched recall and `1.000` precision (`6/6` fields, `5/5` contours) across `clean`, `shaded`, `faint`, and `skewed_noisy` regimes.
+- **Hierarchical AcroForm inheritance (`FFL-NAT-003`):**
+  - Added `_resolve_widget_hierarchy` in `src/pdf_field_lab/inspect_pdf.py` to walk `/Parent` chains (up to depth 16 with cycle protection), inheriting `/T`, `/FT`, `/Ff`, `/Opt`, and `/TU`, guarding `reader.get_fields()` against `pypdf.errors.PdfReadError` when button child widgets omit `/AP`, and disambiguating multi-widget IDs in `src/pdf_field_lab/native_detect.py`.
+

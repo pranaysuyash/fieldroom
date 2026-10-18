@@ -10,7 +10,12 @@
   <body>
     <header class="topbar">
       <a class="brand" href="/"><span class="brand-mark">F</span><span>Fieldroom</span></a>
-      <div class="topbar-meta"><span class="status-dot"></span><span>Local workspace</span></div>
+      <div class="topbar-meta">
+        <span id="security-pill" class="security-pill hidden"></span>
+        <button id="shortcuts-button" class="ghost-button topbar-btn" type="button" title="Keyboard shortcuts (?)">? Shortcuts</button>
+        <span class="status-dot"></span>
+        <span id="workspace-status">Local workspace</span>
+      </div>
     </header>
     <main id="app" class="shell">
       <section id="welcome" class="welcome panel">
@@ -29,26 +34,38 @@
 
       <section id="workspace" class="workspace hidden">
         <aside class="sidebar panel">
-          <div class="sidebar-head"><div><div class="eyebrow">Working on</div><h2 id="file-name">Document</h2></div><button id="new-document" class="ghost-button">New</button></div>
+          <div class="sidebar-head"><div><div class="eyebrow">Working on</div><h2 id="file-name">Document</h2></div><div class="sidebar-head-actions"><button id="reset-session" class="ghost-button hidden" type="button" title="Discard saved review state and re-analyze from scratch">Reset</button><button id="new-document" class="ghost-button" type="button">New</button></div></div>
+          <div id="session-banner" class="session-banner hidden" aria-live="polite"></div>
           <div class="progress-wrap"><div class="progress-label"><span id="completion-label">0% reviewed</span><span id="target-count">0 targets</span></div><div class="progress"><span id="progress-bar"></span></div></div>
           <div id="signature-audit" class="signature-audit hidden" aria-live="polite"></div>
           <div class="field-index-head"><div><div class="eyebrow">Field map</div><h3>Detected fields</h3></div><span id="field-index-count" class="count-badge">0</span></div>
           <div id="field-summary" class="field-summary" aria-label="Detected field types"></div>
+          <div class="field-search-wrap"><input id="field-search" class="control-input field-search" type="search" placeholder="Search fields by label or intent…" aria-label="Search detected fields" autocomplete="off"></div>
           <div id="field-filters" class="field-filters" role="tablist" aria-label="Filter fields"></div>
           <div id="field-list" class="field-list"></div>
           <div class="page-index-head"><div class="eyebrow">Document</div><h3>Pages</h3></div>
           <div class="page-list" id="page-list"></div>
-          <div class="sidebar-foot"><div class="legend"><span class="legend-swatch detected"></span>Detected target</div><div class="legend"><span class="legend-swatch review"></span>Needs review before export</div></div>
+          <div class="sidebar-foot">
+            <div class="legend"><span class="legend-swatch detected"></span>Detected target</div>
+            <div class="legend"><span class="legend-swatch review"></span>Needs review before export</div>
+            <div id="governance-links" class="governance-links hidden" aria-label="Session review artifacts">
+              <span class="eyebrow">Audit artifacts</span>
+              <div class="governance-link-row">
+                <a id="candidates-link" class="artifact-link" download="review-candidates.jsonl">Candidates JSONL</a>
+                <a id="receipts-link" class="artifact-link" download="review-receipts.jsonl">Receipts JSONL</a>
+              </div>
+            </div>
+          </div>
         </aside>
 
         <section class="canvas-column">
-          <div class="canvas-toolbar"><div><span class="eyebrow">Document canvas</span><h2 id="page-title">Page 1</h2></div><div class="toolbar-actions"><button id="add-target" class="secondary-button">＋ Add target</button><button id="zoom-out" class="icon-button">−</button><span id="zoom-label">100%</span><button id="zoom-in" class="icon-button">+</button><button id="export-button" class="primary-button">Export PDF</button><a id="values-link" class="values-link hidden" download>values (JSON)</a></div></div>
-          <div id="canvas-scroll" class="canvas-scroll"><div id="page-stage" class="page-stage"><img id="page-image" alt="PDF page preview"><div id="target-layer"></div><div id="inline-editor-layer"></div></div></div>
+          <div class="canvas-toolbar"><div><span class="eyebrow">Document canvas</span><h2 id="page-title">Page 1</h2></div><div class="toolbar-actions"><button id="toggle-labels" class="ghost-button" type="button" aria-pressed="false" title="Toggle floating labels on all fields">Labels</button><button id="add-target" class="secondary-button" type="button">＋ Add target</button><div class="zoom-group" role="group" aria-label="Zoom controls"><button id="zoom-out" class="icon-button" type="button" title="Zoom out">−</button><button id="zoom-fit" class="ghost-button zoom-label-btn" type="button" title="Reset zoom to 100%"><span id="zoom-label">100%</span></button><button id="zoom-in" class="icon-button" type="button" title="Zoom in">+</button></div><button id="export-button" class="primary-button" type="button">Export PDF</button><a id="values-link" class="values-link hidden" download>values (JSON)</a></div></div>
+          <div id="canvas-scroll" class="canvas-scroll"><div id="page-stage" class="page-stage"><img id="page-image" alt="PDF page preview"><div id="target-layer" class="target-layer"></div><div id="inline-editor-layer"></div></div></div>
           <div id="canvas-status" class="canvas-status">Select a highlighted region to type directly on the page.</div>
         </section>
 
         <aside class="inspector panel">
-          <div id="empty-inspector" class="empty-inspector"><span class="inspector-icon">✦</span><h3>Review your fields</h3><p>Select a highlighted region and type directly on the page. The inspector explains the field and keeps detailed controls close by.</p></div>
+          <div id="empty-inspector" class="empty-inspector"><span class="inspector-icon">✦</span><h3>Review your fields</h3><p>Select a highlighted region and type directly on the page. The inspector explains the field and keeps detailed controls close by.</p><div class="shortcut-hint"><span><kbd>j</kbd>/<kbd>k</kbd> next/prev unreviewed</span><span><kbd>a</kbd> accept</span><span><kbd>x</kbd> reject</span></div></div>
           <div id="field-inspector" class="hidden">
             <div class="inspector-head"><div><div class="eyebrow">Field inspector</div><h2 id="field-label">Field</h2></div><span id="field-kind" class="kind-pill">TEXT</span></div>
             <label class="control-label" for="field-label-input">Name shown to you</label>
@@ -61,12 +78,24 @@
             <div class="geometry-editor"><div class="geometry-head"><span>Position and size</span><small>PDF points</small></div><div class="geometry-grid"><label>X<input id="field-x" type="number" min="0" step="0.1"></label><label>Y<input id="field-y" type="number" min="0" step="0.1"></label><label>Width<input id="field-width" type="number" min="4" step="0.1"></label><label>Height<input id="field-height" type="number" min="4" step="0.1"></label></div></div>
             <div class="field-meta"><div><span>Type</span><strong id="field-type">—</strong></div><div><span>Confidence</span><strong id="field-confidence">—</strong></div><div><span>Source</span><strong id="field-source">—</strong></div></div>
             <div id="field-flags" class="field-flags" aria-live="polite"></div>
+            <div id="conditional-editor" class="conditional-editor hidden"></div>
             <label class="check-row"><input id="field-confirmed" type="checkbox"><span>Mark this target reviewed</span></label>
             <button id="reject-target" class="reject-button" type="button">Reject target</button>
             <div id="field-note" class="field-note"></div>
           </div>
         </aside>
       </section>
+      <div id="shortcuts-popover" class="shortcuts-popover panel hidden" role="dialog" aria-label="Keyboard shortcuts">
+        <div class="shortcuts-head"><strong>Keyboard triage</strong><button id="close-shortcuts" class="ghost-button" type="button">Close</button></div>
+        <dl class="shortcuts-list">
+          <div><dt><kbd>j</kbd></dt><dd>Jump to next unreviewed target</dd></div>
+          <div><dt><kbd>k</kbd></dt><dd>Jump to previous unreviewed target</dd></div>
+          <div><dt><kbd>a</kbd></dt><dd>Accept current target value and advance</dd></div>
+          <div><dt><kbd>x</kbd></dt><dd>Reject or restore selected target</dd></div>
+          <div><dt><kbd>Esc</kbd></dt><dd>Exit manual draw mode or close dialog</dd></div>
+          <div><dt><kbd>?</kbd></dt><dd>Toggle this shortcut reference</dd></div>
+        </dl>
+      </div>
       <div id="toast" class="toast hidden"></div>
     </main>
     <script src="/assets/app.js" defer></script>

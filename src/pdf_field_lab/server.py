@@ -126,8 +126,10 @@ def _required_condition_active(target: dict[str, Any], values: dict[str, Any],
     """A required target must be filled unless its conditional_on points at an
     unfilled reference or at one whose value differs from the expected one.
 
-    Grammar: "<target_id>=<expected value>"; a bare token or absent field is
-    an opaque condition and stays enforced (conservative: a human resolves it).
+    Grammar: "<target_id>=<expected value>", "<target_id>=!" for the inverse
+    (active only while the reference is unfilled: the either/or language-pair
+    case on Form-6), and a bare token for an opaque named condition, which
+    stays enforced (conservative: a human resolves it).
     """
     condition = target.get("conditional_on")
     if not isinstance(condition, str) or "=" not in condition:
@@ -135,6 +137,8 @@ def _required_condition_active(target: dict[str, Any], values: dict[str, Any],
     ref_id, _, expected = condition.partition("=")
     ref_id = ref_id.strip()
     ref_value = values.get(ref_id)
+    if expected.strip() == "!":
+        return not _value_filled(ref_value)
     if not _value_filled(ref_value):
         return False
     expected = expected.strip()
