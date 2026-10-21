@@ -3,33 +3,48 @@
   "model_type": "DictVectorizer + balanced LogisticRegression",
   "label_intent_layer": "deterministic label_ner.py features used as advisory inputs",
   "feature_contract": "normalized geometry + lexical cues + label-intent entities",
-  "record_count": 8734,
+  "record_count": 63,
   "class_counts": {
-    "choice": 7,
-    "date": 4,
-    "image": 86,
-    "negative": 2614,
+    "choice": 9,
+    "date": 6,
+    "image": 9,
+    "negative": 9,
     "signature": 9,
-    "text": 6011,
-    "textarea": 3
+    "text": 12,
+    "textarea": 9
   },
   "source_groups": [
-    "doclaynet-train-sample",
-    "form6",
-    "funsd-train",
-    "ontology-anchors"
+    "employment-application",
+    "travel-consent",
+    "vendor-onboarding"
   ],
-  "holdout_count": 45,
-  "holdout_accuracy": 0.3778,
-  "holdout_macro_f1": 0.25,
+  "holdout_count": 21,
+  "holdout_accuracy": 1.0,
+  "holdout_macro_f1": 1.0,
   "supervision": "weak-and-reviewed-mixed; not a field-level gold benchmark",
   "split_strategy": "group-disjoint GroupShuffleSplit",
   "train_groups": [
-    "doclaynet-train-sample",
-    "funsd-train",
-    "ontology-anchors"
+    "travel-consent",
+    "vendor-onboarding"
   ],
   "holdout_groups": [
-    "form6"
-  ]
+    "employment-application"
+  ],
+  "label_view": {
+    "schema": "pdf-field-lab.trainable-label-view.v2",
+    "source_records_sha256": "880a491ca0b3f00c1a2b1602ea3b6c63f606ad299d40eef3db6a5cbdd46be91d",
+    "view_sha256": "cbca519b96a621c97891f0a48ad5575d9ac4568acb3f80731a909a67ec8cd7ec",
+    "eligible_record_ids": [
+      "gold-employment-application-flat-vector",
+      "gold-employment-application-native-widgets",
+      "gold-employment-application-image-only",
+      "gold-travel-consent-flat-vector",
+      "gold-travel-consent-native-widgets",
+      "gold-travel-consent-image-only",
+      "gold-vendor-onboarding-flat-vector",
+      "gold-vendor-onboarding-native-widgets",
+      "gold-vendor-onboarding-image-only"
+    ],
+    "include_proxy": true
+  }
 }

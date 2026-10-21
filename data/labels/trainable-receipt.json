@@ -21,6 +21,6 @@
   },
   "schema": "pdf-field-lab.trainable-label-view.v2",
   "source": "data/labels/records.jsonl",
-  "source_records_sha256": "0c5f1eb4090fd69f742bd18d17d3fda4434b027a0344d29f53c4b63192685437",
+  "source_records_sha256": "880a491ca0b3f00c1a2b1602ea3b6c63f606ad299d40eef3db6a5cbdd46be91d",
   "view_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
 }

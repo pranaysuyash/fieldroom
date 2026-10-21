@@ -156,6 +156,19 @@ class _StoredReport:
     def __init__(self, payload: dict[str, Any]):
         self._payload = payload
 
+    @property
+    def input(self) -> Any:
+        class _InputAdapter:
+            def __init__(self, input_dict: dict[str, Any]):
+                self.page_sizes = input_dict.get("page_sizes", [])
+                self.pages = input_dict.get("pages", 0)
+                self.native_fields = input_dict.get("native_fields", [])
+        return _InputAdapter(self._payload.get("input", {}))
+
+    @property
+    def logical_fields(self) -> list[Any]:
+        return self._payload.get("logical_fields", [])
+
     def as_dict(self) -> dict[str, Any]:
         return self._payload
 

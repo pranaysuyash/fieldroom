@@ -81,7 +81,7 @@ def _add_checkboxes(writer: PdfWriter, acro_fields: ArrayObject, page_index: int
         parent_ref = writer._add_object(parent)
         acro_fields.append(parent_ref)
         for index, option in enumerate(options):
-            box = option["bbox"]
+            box = option.get("bbox") or field.bbox.as_dict()
             x, y, w, h = box["x"], box["y"], box["width"], box["height"]
             rect = [x, page_height-y-h, x+w, page_height-y]
             appearance = _check_appearance(writer, w, h)
@@ -95,7 +95,7 @@ def _add_checkboxes(writer: PdfWriter, acro_fields: ArrayObject, page_index: int
             parent[NameObject("/Kids")].append(widget.indirect_reference)
     else:
         for index, option in enumerate(options):
-            box = option["bbox"]
+            box = option.get("bbox") or field.bbox.as_dict()
             x, y, w, h = box["x"], box["y"], box["width"], box["height"]
             rect = [x, page_height-y-h, x+w, page_height-y]
             widget = _widget(writer, page_index, rect, f"{name}_{index}", "/Btn",

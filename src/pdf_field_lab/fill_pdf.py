@@ -39,7 +39,12 @@ def _page_widgets(writer: PdfWriter):
 
 def _set_choice(writer: PdfWriter, field: FieldSpec, value: Any) -> bool:
     options = field.options or [{"value": "selected"}]
-    selected = {str(value)} if isinstance(value, str) else {str(v) for v in (value or [])}
+    if isinstance(value, bool):
+        selected = {str(options[0]["value"])} if value and options else set()
+    elif isinstance(value, str):
+        selected = {str(value)}
+    else:
+        selected = {str(v) for v in (value or [])}
     matched = False
     for _, annotation, parent in _page_widgets(writer):
         parent_name = str(parent.get("/T", ""))

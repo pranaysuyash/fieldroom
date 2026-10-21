@@ -27,11 +27,15 @@ runbook in `docs/runbooks/viewer-verification.md`.
 - "VIEWER CHECK" renders one letter per printed box in field 1(a), matching
   the character-grid fill design.
 - Required relative-name field shows its value on the correct line.
-- **Observation for the human pass:** in the captured window, the relative-
-  type radio options all appear marked, though only "father" was answered.
-  Verify at full resolution whether the radio-state export marks every
-  option (would be an export fidelity defect and a new register item) or
-  whether this is a Preview rendering artifact at this zoom level.
+- **Radio-state observation: RESOLVED 2026-10-18, no defect.** Object-level
+  inspection of `exported-r1.pdf` shows exactly one kid with `/AS=/Yes`
+  (father) and four with `/AS=/Off`, each carrying both `/Off` and `/Yes`
+  appearance states. The all-marked look in `preview-window.png` is the
+  printed radio circles from the source page rendering dark at screenshot
+  zoom. Minor nit noted for the native-fidelity register row: radio kids
+  carry an empty-string `/V` that strict validators may prefer absent
+  (harmless in Preview/pypdf; left unchanged to avoid invalidating these
+  receipts).
 
 ## Still owed
 

@@ -109,3 +109,24 @@ def test_composite_field_accepts_structured_subfields_from_one_task(tmp_path):
     })
     assert set(result["text_fields_filled"]) == {"constituency_number", "constituency_name"}
     assert output.is_file()
+
+
+def test_choice_field_accepts_boolean_values(tmp_path):
+    editable = tmp_path / "choice-editable.pdf"
+    output = tmp_path / "choice-filled.pdf"
+    target = FieldSpec(
+        id="agree", page=1, label="I Agree", kind="choice",
+        bbox=BBox(50, 100, 16, 16), editable_strategy="acroform-checkbox",
+        options=[{"value": "yes", "label": "Yes"}],
+    )
+    export_editable(FIXTURE, editable, [target])
+    result = fill_editable(editable, output, [target], {"agree": True})
+    assert result["choice_fields_matched"] == ["agree"]
+    assert output.is_file()
+
+    output_false = tmp_path / "choice-unfilled.pdf"
+    result_false = fill_editable(editable, output_false, [target], {"agree": False})
+    assert result_false["choice_fields_matched"] == []
+    assert output_false.is_file()
+
+
