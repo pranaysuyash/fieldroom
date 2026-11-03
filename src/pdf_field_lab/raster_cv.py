@@ -350,6 +350,65 @@ def detect_raster_targets(
             if len(candidates) >= max_per_page:
                 break
 
+        # Choice-cue family: a small near-square or circular contour is a
+        # checkable affordance even when its adjacent text carries no explicit
+        # field cue ("Father", "Aadhaar Card"). The miss taxonomy measured
+        # these as the dominant raster gap (12/21 misses at zero overlap), so
+        # geometry alone proposes them; confidence stays low and review stays
+        # required, preserving the conservative contract above.
+        if len(candidates) < max_per_page:
+            choice_regions: list[BBox] = []
+            for contour in contours:
+                x, y, width, height = cv2.boundingRect(contour)
+                w_pt, h_pt = width / page_scale, height / page_scale
+                if not (9.0 <= w_pt <= 26.0 and 9.0 <= h_pt <= 26.0
+                        and abs(w_pt - h_pt) <= 6.0):
+                    continue
+                area = cv2.contourArea(contour)
+                if area < 22:
+                    continue
+                perimeter = cv2.arcLength(contour, True)
+                circularity = (4 * np.pi * area / (perimeter * perimeter)
+                               if perimeter > 0 else 0.0)
+                quadrilateral = len(cv2.approxPolyDP(contour, 0.03 * perimeter, True)) == 4
+                if not quadrilateral and circularity < 0.55:
+                    # Radio circles never approximate to four vertices; accept
+                    # them by circularity instead of the shape filter above.
+                    continue
+                region = BBox(round(x / page_scale, 3), round(y / page_scale, 3),
+                              round(w_pt, 3), round(h_pt, 3))
+                if any(overlap_ratio(grid_box, region) >= 0.5 for grid_box in comb_grids):
+                    continue
+                if any(overlap_ratio(existing.bbox, region) >= 0.5 for existing in candidates):
+                    continue
+                choice_regions.append(region)
+            for region in choice_regions:
+                if len(candidates) >= max_per_page:
+                    break
+                center_y = region.y + region.height / 2.0
+                row_peers = sum(
+                    1 for other in choice_regions
+                    if other is not region
+                    and abs((other.y + other.height / 2.0) - center_y) <= 4.0)
+                label = _nearby_label(words_pts, region) or "Checkable option"
+                key = (round(region.x), round(region.y), round(region.width), round(region.height), "choice")
+                if key in seen or any(existing.kind == "choice"
+                                      and overlap_ratio(existing.bbox, region) >= 0.65
+                                      for existing in candidates):
+                    continue
+                seen.add(key)
+                candidates.append(FieldSpec(
+                    id=f"raster-target-{page_number}-{len(candidates):04d}", page=page_number,
+                    label=label, kind="choice", bbox=region,
+                    editable_strategy="acroform-radio" if row_peers else "acroform-checkbox",
+                    review_required=True, confidence=0.55,
+                    evidence=[Evidence("raster_cv", 0.55,
+                                       f"Choice-sized contour ({'radio row' if row_peers else 'standalone'}); "
+                                       "geometry cue without explicit label cue")],
+                    notes=["Raster/OCR candidate; confirm position and meaning before export."],
+                    label_entities=extract_label_entities(label) if label != "Checkable option" else [],
+                ))
+
         # A scanned form can use blank space after a label instead of a drawn
         # border. Mirror the vector detector's whitespace lane in OCR space,
         # while retaining the lower-confidence raster provenance.

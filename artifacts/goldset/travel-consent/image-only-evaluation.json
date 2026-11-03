@@ -1,5 +1,5 @@
 {
-  "schema": "pdf-field-lab.detector-evaluation.v1",
+  "schema": "pdf-field-lab.detector-evaluation.v2",
   "pdf": "artifacts/goldset/travel-consent/image-only.pdf",
   "labels": "artifacts/goldset/travel-consent/image-only-labels.json",
   "detector": "raster",
@@ -7,13 +7,13 @@
   "policy": {
     "positive_match_iou": 0.25
   },
-  "prediction_count": 6,
+  "prediction_count": 8,
   "positive_cases": 6,
   "positive_matches": 6,
   "positive_recall": 1.0,
-  "false_positive_predictions": 0,
-  "precision": 1.0,
-  "f1": 1.0,
+  "false_positive_predictions": 2,
+  "precision": 0.75,
+  "f1": 0.857,
   "hard_negative_cases": 1,
   "hard_negative_false_positives": 0,
   "hard_negative_false_positive_rate": 0.0,
@@ -21,6 +21,9 @@
   "type_correct": 6,
   "type_accuracy": 1.0,
   "label_association_rate": 1.0,
+  "label_error_count": 0,
+  "label_error_rate": 0.0,
+  "label_errors": [],
   "association_cases": 0,
   "association_matches": 0,
   "association_recall": 1.0,
@@ -94,6 +97,5 @@
       "false_positive": false,
       "matches": []
     }
-  ],
-  "representation": "image-only"
+  ]
 }

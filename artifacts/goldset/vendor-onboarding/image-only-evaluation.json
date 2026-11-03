@@ -1,5 +1,5 @@
 {
-  "schema": "pdf-field-lab.detector-evaluation.v1",
+  "schema": "pdf-field-lab.detector-evaluation.v2",
   "pdf": "artifacts/goldset/vendor-onboarding/image-only.pdf",
   "labels": "artifacts/goldset/vendor-onboarding/image-only-labels.json",
   "detector": "raster",
@@ -7,20 +7,31 @@
   "policy": {
     "positive_match_iou": 0.25
   },
-  "prediction_count": 6,
+  "prediction_count": 12,
   "positive_cases": 6,
   "positive_matches": 6,
   "positive_recall": 1.0,
-  "false_positive_predictions": 0,
-  "precision": 1.0,
-  "f1": 1.0,
+  "false_positive_predictions": 6,
+  "precision": 0.5,
+  "f1": 0.667,
   "hard_negative_cases": 1,
   "hard_negative_false_positives": 0,
   "hard_negative_false_positive_rate": 0.0,
   "typed_cases": 6,
-  "type_correct": 6,
-  "type_accuracy": 1.0,
-  "label_association_rate": 1.0,
+  "type_correct": 5,
+  "type_accuracy": 0.833,
+  "label_association_rate": 0.833,
+  "label_error_count": 1,
+  "label_error_rate": 0.167,
+  "label_errors": [
+    {
+      "case_id": "vendor-onboarding.company-logo",
+      "expected_label": "Company logo:",
+      "predicted_id": "raster-target-1-0002",
+      "predicted_label": "Authorized signature:",
+      "iou": 0.988
+    }
+  ],
   "association_cases": 0,
   "association_matches": 0,
   "association_recall": 1.0,
@@ -71,10 +82,10 @@
       "matched": true,
       "iou": 0.988,
       "predicted_id": "raster-target-1-0002",
-      "predicted_kind": "image",
-      "label": "Company logo:",
-      "label_similarity": 1.0,
-      "label_associated": true
+      "predicted_kind": "signature",
+      "label": "Authorized signature:",
+      "label_similarity": 0.0,
+      "label_associated": false
     },
     {
       "id": "vendor-onboarding.authorized-signature",
@@ -94,6 +105,5 @@
       "false_positive": false,
       "matches": []
     }
-  ],
-  "representation": "image-only"
+  ]
 }

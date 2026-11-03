@@ -173,3 +173,51 @@ def test_detect_raster_targets_page_filter_and_isolation(tmp_path, monkeypatch):
     assert any(target.page == 2 for target in isolated_targets)
     assert any("Raster detection failed on page 1" in warning for warning in warnings)
 
+
+def test_choice_cue_family_recovers_unlabeled_checkable_affordances(tmp_path):
+    """The miss taxonomy measured unlabeled radio circles and checkbox squares
+    as the dominant raster gap (12/21 misses at zero overlap). Geometry alone
+    must propose them as review-required choice candidates, and hard-negative
+    long rules must not fire the cue."""
+    source = tmp_path / "choices-source.pdf"
+    drawing = canvas.Canvas(str(source), pagesize=(612, 792))
+    drawing.setFont("Helvetica", 12)
+    # Radio row: three circles; labels carry no explicit field cue.
+    for x in (80, 160, 240):
+        drawing.circle(x, 600, 8, stroke=1, fill=0)
+    drawing.drawString(96, 596, "Alpha")
+    drawing.drawString(176, 596, "Beta")
+    drawing.drawString(256, 596, "Gamma")
+    # Standalone square checkboxes.
+    drawing.rect(72, 520, 14, 14)
+    drawing.rect(120, 520, 14, 14)
+    # Hard negative: long decorative rules must not become choice candidates.
+    drawing.line(72, 100, 540, 100)
+    drawing.line(72, 96, 540, 96)
+    drawing.save()
+
+    image_only = tmp_path / "choices-image-only.pdf"
+    source_document = fitz.open(str(source))
+    try:
+        pixmap = source_document[0].get_pixmap(matrix=fitz.Matrix(2, 2), alpha=False)
+        flattened = fitz.open()
+        try:
+            page = flattened.new_page(width=612, height=792)
+            page.insert_image(page.rect, stream=pixmap.tobytes("png"))
+            flattened.save(str(image_only))
+        finally:
+            flattened.close()
+    finally:
+        source_document.close()
+
+    targets = detect_raster_targets(image_only, dpi=150)
+    choices = [target for target in targets if target.kind == "choice"]
+    assert len(choices) >= 3, [t.kind for t in targets]
+    radio_rows = [t for t in choices if t.editable_strategy == "acroform-radio"]
+    assert radio_rows, "circles in a row should propose the radio strategy"
+    assert all(target.review_required for target in choices)
+    assert all(target.confidence <= 0.6 for target in choices)
+    # Long rules are not choice-sized; nothing may sit at y~96-100.
+    assert all(target.bbox.y + target.bbox.height < 90 or target.bbox.y > 110
+               for target in choices)
+
