@@ -1,0 +1,142 @@
+{
+  "schema": "pdf-field-lab.scan-miss-taxonomy.v1",
+  "source": "data/samples/RAr0Lq2Avu.pdf",
+  "dpi": 200,
+  "match_iou": 0.25,
+  "reference_targets": 36,
+  "raster_targets": 43,
+  "matched": 24,
+  "misses": [
+    {
+      "id": "target-1-0002",
+      "page": 1,
+      "kind": "text",
+      "label": "Surname (if any)",
+      "input_mode": "single",
+      "class": "cue-vocabulary",
+      "best_overlap": 0.0,
+      "fused_reference_count": 1
+    },
+    {
+      "id": "target-1-0008",
+      "page": 1,
+      "kind": "choice",
+      "label": "Father",
+      "input_mode": "single",
+      "class": "cue-vocabulary",
+      "best_overlap": 0.0,
+      "fused_reference_count": 1
+    },
+    {
+      "id": "target-1-0012",
+      "page": 1,
+      "kind": "choice",
+      "label": "Aadhaar Number",
+      "input_mode": "single",
+      "class": "cue-vocabulary",
+      "best_overlap": 0.0,
+      "fused_reference_count": 1
+    },
+    {
+      "id": "target-1-0016",
+      "page": 1,
+      "kind": "choice",
+      "label": "Aadhaar Card",
+      "input_mode": "single",
+      "class": "cue-vocabulary",
+      "best_overlap": 0.011,
+      "fused_reference_count": 1
+    },
+    {
+      "id": "target-1-0020",
+      "page": 1,
+      "kind": "image",
+      "label": "SPACE FOR PASTING ONE RECENT UNSIGNED",
+      "input_mode": "single",
+      "class": "cue-vocabulary",
+      "best_overlap": 0.0,
+      "fused_reference_count": 1
+    },
+    {
+      "id": "target-2-0000",
+      "page": 2,
+      "kind": "text",
+      "label": "Name of family member:",
+      "input_mode": "single",
+      "class": "threshold-geometry",
+      "best_overlap": 0.239,
+      "fused_reference_count": 1
+    },
+    {
+      "id": "target-2-0002",
+      "page": 2,
+      "kind": "text",
+      "label": "His/her EPIC no.:",
+      "input_mode": "single",
+      "class": "cue-vocabulary",
+      "best_overlap": 0.0,
+      "fused_reference_count": 1
+    },
+    {
+      "id": "target-2-0012",
+      "page": 2,
+      "kind": "text",
+      "label": "place of my birth is:- Village/Town",
+      "input_mode": "single",
+      "class": "cue-vocabulary",
+      "best_overlap": 0.0,
+      "fused_reference_count": 1
+    },
+    {
+      "id": "target-2-0013",
+      "page": 2,
+      "kind": "text",
+      "label": "District",
+      "input_mode": "single",
+      "class": "threshold-geometry",
+      "best_overlap": 0.13,
+      "fused_reference_count": 1
+    },
+    {
+      "id": "target-2-0014",
+      "page": 2,
+      "kind": "text",
+      "label": "State/UT",
+      "input_mode": "single",
+      "class": "threshold-geometry",
+      "best_overlap": 0.13,
+      "fused_reference_count": 1
+    },
+    {
+      "id": "target-2-0015",
+      "page": 2,
+      "kind": "date",
+      "label": "Date:",
+      "input_mode": "single",
+      "class": "threshold-geometry",
+      "best_overlap": 0.097,
+      "fused_reference_count": 1
+    },
+    {
+      "id": "target-2-0016",
+      "page": 2,
+      "kind": "text",
+      "label": "Place:",
+      "input_mode": "single",
+      "class": "threshold-geometry",
+      "best_overlap": 0.097,
+      "fused_reference_count": 1
+    }
+  ],
+  "miss_count": 12,
+  "counts_by_class": {
+    "cue-vocabulary": 7,
+    "threshold-geometry": 5
+  },
+  "counts_by_kind": {
+    "text": 7,
+    "choice": 3,
+    "image": 1,
+    "date": 1
+  }
+}

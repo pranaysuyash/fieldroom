@@ -29,3 +29,9 @@ tests/local/
 # Agent-tool artifacts (plugin_root pointers), not project code
 .v2c/
 .video_agent/
+
+# Regenerable corpus benchmark outputs (parallel-run artifacts)
+artifacts/local-corpus-eval/
+artifacts/system-corpus-proj4/
+artifacts/system-corpus-proj4-sample/
+artifacts/system-corpus-test/
