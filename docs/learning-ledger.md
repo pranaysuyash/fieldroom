@@ -652,3 +652,22 @@ boundary. Append a dated decision rather than silently rewriting the rationale.
 - **Hierarchical AcroForm inheritance (`FFL-NAT-003`):**
   - Added `_resolve_widget_hierarchy` in `src/pdf_field_lab/inspect_pdf.py` to walk `/Parent` chains (up to depth 16 with cycle protection), inheriting `/T`, `/FT`, `/Ff`, `/Opt`, and `/TU`, guarding `reader.get_fields()` against `pypdf.errors.PdfReadError` when button child widgets omit `/AP`, and disambiguating multi-widget IDs in `src/pdf_field_lab/native_detect.py`.
 
+## 2026-11-13 First-principles audit, frontend studio overhaul, and automated radio group synthesis
+
+- **Objective:** Execute full first-principles architectural overhaul across the frontend review studio (`browser/`), semantic detection engine (`src/pdf_field_lab/`), export/fill pipelines, and test suites.
+- **Frontend Studio Ergonomics & Batch Triage (`FFL-FE-017`):**
+  - Implemented full CAD/design keyboard ergonomics in `browser/app.js`: arrow keys (`↑`, `↓`, `←`, `→`) nudge bounding boxes by `1pt` (`Shift + Arrow` by `5pt`), with debounced manifest persistence (`300ms`); `r` key cycles field types (`text` → `textarea` → `date` → `choice` → `image` → `signature` → `composite`); `[` / `]` jumps pages; and `Enter` focuses the inline field editor for immediate value typing without mouse usage.
+  - Added batch review toolbar controls (`#batch-accept-page` and `#batch-accept-high-conf`) allowing rapid acceptance of all page fields or all high-confidence ($\ge 80\%$) fields with instant progress updates and manifest persistence.
+  - Added coordinate snapping in canvas pointer movements (`Math.round` to integer points) eliminating fractional sub-pixel blur during drag and resize.
+  - Updated `#shortcuts-popover` and added 2 contract tests in `tests/test_browser_contract.py` (all 12 passing).
+- **Automated Choice & Mutual Exclusion Radio Synthesis (`FFL-DET-018`):**
+  - Added `_synthesize_choice_groups` in `src/pdf_field_lab/semantic_detect.py`: clusters spatially proximate checkboxes sharing common baseline baselines ($\le 4\text{pt}$) and matching mutual exclusion vocabularies (Gender, Relationship, Binary Yes/No, Marital status, Employment status).
+  - Automatically synthesizes unified `choice` fields with `editable_strategy: "acroform-radio"` and structured option bounding boxes in `options`, synthesizing 3 real radio groups on Form-6 (`Relationship`, `Gender`, `Yes / No`) without manual templates or hardcoded coordinates.
+  - Hardened `fill_pdf._set_choice` for case-insensitive option matching across values and human labels (`"female"` vs `"Female"`).
+  - Added `test_synthesize_choice_groups_clusters_gender_radios_and_roundtrips_fill` in `tests/test_semantic_detection.py` proving detection, AcroForm parent-kids export, and filling roundtrip.
+- **Verification & Quality Gate:**
+  - `pytest --cov=pdf_field_lab`: 126 passed, 2 skipped, coverage 84.58% (exceeding the 80.0% floor).
+  - `ruff check .`: Clean (all checks passed).
+  - `tools/export_public.py --check`: Gate passed with zero local paths, secrets, or identity in data/code.
+
+

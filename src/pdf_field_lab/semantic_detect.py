@@ -63,6 +63,8 @@ def classify_label(label: str, *, region: BBox, page_height: float) -> tuple[str
     # "notice" as a choice field.
     if any(word in tokens for word in _CHOICE_WORDS if word != "no"):
         return "choice", 0.7, "nearby label contains a choice cue"
+    if "no" in tokens and (region.width <= 32 and region.height <= 32 or "yes" in tokens):
+        return "choice", 0.72, "nearby label contains binary choice cue"
     if (region.height >= 36 and any(word in text for word in _TEXTAREA_WORDS)):
         return "textarea", 0.72, "nearby label and tall region suggest multiline text"
     return "text", 0.5 if label else 0.28, "text rule or rectangle needs label review"
@@ -451,6 +453,111 @@ def _target(page_number: int, index: int, region: BBox, label: str,
     )
 
 
+_MUTUAL_EXCLUSIVE_SETS: tuple[set[str], ...] = (
+    {"male", "female", "third gender", "transgender", "other"},
+    {"father", "mother", "husband", "wife", "guardian"},
+    {"yes", "no"},
+    {"single", "married", "divorced", "widowed"},
+    {"regular", "temporary", "contract", "permanent", "full time", "part time"},
+)
+
+
+def _synthesize_choice_groups(targets: list[FieldSpec]) -> list[FieldSpec]:
+    """Cluster proximate choice fields with mutually exclusive semantics into radio groups."""
+    unoptioned_choices = [t for t in targets if t.kind == "choice" and not t.options]
+    if len(unoptioned_choices) < 2:
+        return targets
+
+    other_targets = [t for t in targets if t not in unoptioned_choices]
+    by_page: dict[int, list[FieldSpec]] = {}
+    for c in unoptioned_choices:
+        by_page.setdefault(c.page, []).append(c)
+
+    synthesized: list[FieldSpec] = []
+    consumed_ids: set[str] = set()
+
+    for page, p_choices in by_page.items():
+        # Sort primarily by vertical band (within ~4pt tolerance) then x
+        p_choices.sort(key=lambda item: (round(item.bbox.y / 4.0), item.bbox.x))
+        i = 0
+        while i < len(p_choices):
+            cur = p_choices[i]
+            if cur.id in consumed_ids:
+                i += 1
+                continue
+            group = [cur]
+            for j in range(i + 1, len(p_choices)):
+                cand = p_choices[j]
+                if cand.id in consumed_ids:
+                    continue
+                # Horizontal row alignment within 4pt baseline
+                if abs(cand.bbox.y - group[-1].bbox.y) <= 4.0:
+                    gap = cand.bbox.x - (group[-1].bbox.x + group[-1].bbox.width)
+                    if 0 <= gap <= 160.0:
+                        group.append(cand)
+                    else:
+                        break
+                else:
+                    break
+
+            is_radio = False
+            if len(group) >= 2:
+                labels_clean = {_clean(g.label) for g in group}
+                for vocab in _MUTUAL_EXCLUSIVE_SETS:
+                    if len(labels_clean & vocab) >= 2:
+                        is_radio = True
+                        break
+
+            if is_radio:
+                for g in group:
+                    consumed_ids.add(g.id)
+                min_x = min(g.bbox.x for g in group)
+                min_y = min(g.bbox.y for g in group)
+                max_x = max(g.bbox.x + g.bbox.width for g in group)
+                max_y = max(g.bbox.y + g.bbox.height for g in group)
+                enclosing = BBox(round(min_x, 3), round(min_y, 3),
+                                 round(max_x - min_x, 3), round(max_y - min_y, 3))
+
+                common_title = " / ".join(g.label for g in group)
+                labels_clean = {_clean(g.label) for g in group}
+                if labels_clean & {"male", "female", "third gender"}:
+                    group_label = f"Gender ({common_title})"
+                elif labels_clean & {"father", "mother", "husband", "wife"}:
+                    group_label = f"Relationship ({common_title})"
+                elif labels_clean & {"yes", "no"}:
+                    group_label = f"Choice ({common_title})"
+                else:
+                    group_label = common_title
+
+                options = [{
+                    "value": _clean(g.label).replace(" ", "_") or f"opt_{idx}",
+                    "label": g.label,
+                    "bbox": g.bbox.as_dict(),
+                } for idx, g in enumerate(group)]
+
+                unified = FieldSpec(
+                    id=group[0].id,
+                    page=page,
+                    label=group_label,
+                    kind="choice",
+                    bbox=enclosing,
+                    editable_strategy="acroform-radio",
+                    review_required=True,
+                    confidence=max(g.confidence for g in group),
+                    options=options,
+                    evidence=[Evidence("vector", 0.85,
+                                       f"Synthesized mutual exclusion radio group from {len(group)} options")],
+                    notes=["Synthesized choice group with mutually exclusive options."],
+                )
+                synthesized.append(unified)
+            else:
+                consumed_ids.add(cur.id)
+                synthesized.append(cur)
+            i += 1
+
+    return synthesized + other_targets
+
+
 def _dedupe(candidates: Iterable[FieldSpec]) -> list[FieldSpec]:
     seen: set[tuple[int, int, int, int, str]] = set()
     result: list[FieldSpec] = []
@@ -691,4 +798,5 @@ def detect_semantic_targets(
                         f"Semantic detection failed on page {page_number}: {type(exc).__name__}"
                     )
                 continue
+    targets = _synthesize_choice_groups(targets)
     return _dedupe(targets)

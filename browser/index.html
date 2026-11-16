@@ -59,7 +59,7 @@
         </aside>
 
         <section class="canvas-column">
-          <div class="canvas-toolbar"><div><span class="eyebrow">Document canvas</span><h2 id="page-title">Page 1</h2></div><div class="toolbar-actions"><button id="toggle-labels" class="ghost-button" type="button" aria-pressed="false" title="Toggle floating labels on all fields">Labels</button><button id="add-target" class="secondary-button" type="button">＋ Add target</button><div class="zoom-group" role="group" aria-label="Zoom controls"><button id="zoom-out" class="icon-button" type="button" title="Zoom out">−</button><button id="zoom-fit" class="ghost-button zoom-label-btn" type="button" title="Reset zoom to 100%"><span id="zoom-label">100%</span></button><button id="zoom-in" class="icon-button" type="button" title="Zoom in">+</button></div><button id="export-button" class="primary-button" type="button">Export PDF</button><a id="values-link" class="values-link hidden" download>values (JSON)</a></div></div>
+          <div class="canvas-toolbar"><div><span class="eyebrow">Document canvas</span><h2 id="page-title">Page 1</h2></div><div class="toolbar-actions"><button id="toggle-labels" class="ghost-button" type="button" aria-pressed="false" title="Toggle floating labels on all fields">Labels</button><button id="batch-accept-page" class="ghost-button" type="button" title="Accept all unreviewed fields on current page">Accept page</button><button id="batch-accept-high-conf" class="ghost-button" type="button" title="Accept fields with confidence ≥ 80% on current page">Accept ≥80%</button><button id="add-target" class="secondary-button" type="button">＋ Add target</button><div class="zoom-group" role="group" aria-label="Zoom controls"><button id="zoom-out" class="icon-button" type="button" title="Zoom out">−</button><button id="zoom-fit" class="ghost-button zoom-label-btn" type="button" title="Reset zoom to 100%"><span id="zoom-label">100%</span></button><button id="zoom-in" class="icon-button" type="button" title="Zoom in">+</button></div><button id="export-button" class="primary-button" type="button">Export PDF</button><a id="values-link" class="values-link hidden" download>values (JSON)</a></div></div>
           <div id="canvas-scroll" class="canvas-scroll"><div id="page-stage" class="page-stage"><img id="page-image" alt="PDF page preview"><div id="target-layer" class="target-layer"></div><div id="inline-editor-layer"></div></div></div>
           <div id="canvas-status" class="canvas-status">Select a highlighted region to type directly on the page.</div>
         </section>
@@ -92,6 +92,10 @@
           <div><dt><kbd>k</kbd></dt><dd>Jump to previous unreviewed target</dd></div>
           <div><dt><kbd>a</kbd></dt><dd>Accept current target value and advance</dd></div>
           <div><dt><kbd>x</kbd></dt><dd>Reject or restore selected target</dd></div>
+          <div><dt><kbd>r</kbd></dt><dd>Cycle field type (text, choice, date, etc.)</dd></div>
+          <div><dt><kbd>↑</kbd><kbd>↓</kbd><kbd>←</kbd><kbd>→</kbd></dt><dd>Nudge target position (Shift for 5pt)</dd></div>
+          <div><dt><kbd>[</kbd> / <kbd>]</kbd></dt><dd>Jump to previous / next page</dd></div>
+          <div><dt><kbd>Enter</kbd></dt><dd>Focus inline input to type directly</dd></div>
           <div><dt><kbd>Esc</kbd></dt><dd>Exit manual draw mode or close dialog</dd></div>
           <div><dt><kbd>?</kbd></dt><dd>Toggle this shortcut reference</dd></div>
         </dl>

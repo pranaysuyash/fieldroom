@@ -157,3 +157,36 @@ def test_thin_signature_line_is_manifest_safe(tmp_path):
     assert len(targets) == 1
     assert targets[0].kind == "signature"
     assert targets[0].bbox.height >= 4
+
+
+def test_synthesize_choice_groups_clusters_gender_radios_and_roundtrips_fill(tmp_path):
+    source = tmp_path / "gender-radios.pdf"
+    drawing = canvas.Canvas(str(source), pagesize=(612, 792))
+    drawing.drawString(72, 700, "Gender:")
+    drawing.drawString(100, 680, "Male")
+    drawing.rect(80, 678, 14, 14)
+    drawing.drawString(180, 680, "Female")
+    drawing.rect(160, 678, 14, 14)
+    drawing.drawString(260, 680, "Third Gender")
+    drawing.rect(240, 678, 14, 14)
+    drawing.save()
+
+    targets = detect_semantic_targets(Path(source))
+    choice_targets = [t for t in targets if t.kind == "choice"]
+    assert len(choice_targets) == 1
+    radio_group = choice_targets[0]
+    assert radio_group.editable_strategy == "acroform-radio"
+    assert radio_group.selection_mode == "radio"
+    assert len(radio_group.options) == 3
+    assert [o["value"] for o in radio_group.options] == ["male", "female", "third_gender"]
+
+    # Test roundtrip export & fill
+    from pdf_field_lab.export_pdf import export_editable
+    from pdf_field_lab.fill_pdf import fill_editable
+
+    editable = tmp_path / "gender-editable.pdf"
+    filled = tmp_path / "gender-filled.pdf"
+    export_editable(source, editable, [radio_group])
+    result = fill_editable(editable, filled, [radio_group], {radio_group.id: "female"})
+    assert radio_group.id in result["choice_fields_matched"]
+

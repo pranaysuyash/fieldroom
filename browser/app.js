@@ -291,7 +291,28 @@ function renderTargets() {
   renderInlineEditor();
 }
 function startTransform(event, target, mode) { if (state.drawMode) return; event.preventDefault(); state.drag = { target, mode, start: pdfPoint(event), original: { ...target.bbox }, moved: false }; }
-document.addEventListener("pointermove", (event) => { if (!state.drag || state.drag.mode === "draw") return; const drag = state.drag; const point = pdfPoint(event); const dx = point.x - drag.start.x; const dy = point.y - drag.start.y; const next = { ...drag.original }; if (drag.mode === "move") { next.x += dx; next.y += dy; } else { next.width += dx; next.height += dy; } drag.target.bbox = clampBox(next); drag.moved = Math.abs(dx) + Math.abs(dy) > 2; if (drag.moved) { state.justMoved = true; renderTargets(); renderInspectorGeometry(drag.target); } });
+document.addEventListener("pointermove", (event) => {
+  if (!state.drag || state.drag.mode === "draw") return;
+  const drag = state.drag;
+  const point = pdfPoint(event);
+  const dx = point.x - drag.start.x;
+  const dy = point.y - drag.start.y;
+  const next = { ...drag.original };
+  if (drag.mode === "move") {
+    next.x = Math.round(next.x + dx);
+    next.y = Math.round(next.y + dy);
+  } else {
+    next.width = Math.round(next.width + dx);
+    next.height = Math.round(next.height + dy);
+  }
+  drag.target.bbox = clampBox(next);
+  drag.moved = Math.abs(dx) + Math.abs(dy) > 2;
+  if (drag.moved) {
+    state.justMoved = true;
+    renderTargets();
+    renderInspectorGeometry(drag.target);
+  }
+});
 document.addEventListener("pointerup", () => { if (!state.drag) return; const changed = state.drag.moved; state.drag = null; if (changed) persistManifest(); });
 
 function renderCommittedValue(target, root, scaleX, scaleY) {
@@ -381,6 +402,88 @@ function openConditionalEditor(target) {
   input.focus();
 }
 function renderFieldFlags(target) { const root = $("field-flags"); if (!root) return; root.replaceChildren(); const requiredChip = document.createElement("span"); requiredChip.className = `field-flag${target.required ? " required" : ""}`; requiredChip.role = "button"; requiredChip.tabIndex = 0; requiredChip.textContent = target.required ? "Required at export" : "Mark required"; requiredChip.title = target.required ? "Export refuses empty values here. Click to clear." : "Export will refuse empty values here once marked."; requiredChip.addEventListener("click", () => { target.required = !target.required; renderFieldFlags(target); persistManifest(); }); root.append(requiredChip); const condChip = document.createElement("span"); condChip.className = "field-flag conditional"; condChip.role = "button"; condChip.tabIndex = 0; condChip.textContent = target.conditional_on ? `Conditional on ${target.conditional_on}` : "＋ Condition"; condChip.title = target.conditional_on ? "This field is only expected when its condition holds; click to edit or clear." : "Add a conditional_on rule (target_id=value) for this field."; condChip.addEventListener("click", () => openConditionalEditor(target)); root.append(condChip); if (target.kind === "choice") { const isSingle = target.selection_mode === "radio" || target.editable_strategy === "acroform-radio"; const modeChip = document.createElement("span"); modeChip.className = "field-flag"; modeChip.role = "button"; modeChip.tabIndex = 0; modeChip.textContent = isSingle ? "Mode: single-select" : "Mode: multi-select"; modeChip.title = "Toggle choice behavior between single-select (radio) and multi-select (checkbox)."; modeChip.addEventListener("click", () => { const nextSingle = !isSingle; target.selection_mode = nextSingle ? "radio" : "checkbox"; target.editable_strategy = nextSingle ? "acroform-radio" : "acroform-checkbox"; selectTarget(target); persistManifest(); }); root.append(modeChip); } }
+const KIND_ORDER = ["text", "textarea", "date", "choice", "image", "signature", "composite"];
+
+function nudgeTarget(dx, dy) {
+  const target = currentTarget();
+  if (!target) return;
+  const next = { ...target.bbox, x: Math.round(target.bbox.x + dx), y: Math.round(target.bbox.y + dy) };
+  target.bbox = clampBox(next);
+  renderTargets();
+  renderInspectorGeometry(target);
+  clearTimeout(nudgeTarget.timer);
+  nudgeTarget.timer = setTimeout(() => persistManifest(), 300);
+}
+
+function cycleFieldType() {
+  const target = currentTarget();
+  if (!target) return;
+  const currentKind = normalizedKind(target);
+  const nextIdx = (KIND_ORDER.indexOf(currentKind) + 1) % KIND_ORDER.length;
+  const nextKind = KIND_ORDER[nextIdx];
+  target.kind = nextKind;
+  target.component = FIELD_TYPES[nextKind].label;
+  target.editable_strategy = nextKind === "choice" ? "acroform-checkbox" : nextKind === "image" || nextKind === "signature" ? "visual-overlay-image" : "acroform-text";
+  renderAll();
+  persistManifest();
+  showToast(`Type changed to ${FIELD_TYPES[nextKind].label}`);
+}
+
+function jumpPage(delta) {
+  if (!state.session || !state.session.pages?.length) return;
+  const total = state.session.pages.length;
+  const next = Math.max(1, Math.min(total, state.page + delta));
+  if (next !== state.page) {
+    state.page = next;
+    renderPages();
+    renderCanvas();
+    showToast(`Page ${next} of ${total}`);
+  }
+}
+
+function focusInlineEditor() {
+  const target = currentTarget();
+  if (!target) return;
+  const editor = $("inline-editor-layer");
+  const input = editor?.querySelector("input, select, textarea");
+  if (input) {
+    input.focus();
+    if (input.select && typeof input.select === "function") input.select();
+  }
+}
+
+function batchAcceptPage(pageNumber) {
+  if (!state.session) return;
+  const pno = pageNumber || state.page;
+  const pageTargets = activeTargets().filter((t) => t.page === pno && !isReviewed(t));
+  if (!pageTargets.length) {
+    showToast(`All fields on Page ${pno} are already reviewed.`);
+    return;
+  }
+  pageTargets.forEach((t) => { t.status = "accepted"; });
+  updateProgress();
+  renderTargets();
+  renderFieldList();
+  persistManifest();
+  showToast(`Accepted ${pageTargets.length} field(s) on Page ${pno}.`);
+}
+
+function batchAcceptHighConfidence(pageNumber, threshold = 0.8) {
+  if (!state.session) return;
+  const pno = pageNumber || state.page;
+  const highConfTargets = activeTargets().filter((t) => t.page === pno && !isReviewed(t) && (t.confidence || 0) >= threshold);
+  if (!highConfTargets.length) {
+    showToast(`No unreviewed fields with ≥${Math.round(threshold * 100)}% confidence on Page ${pno}.`);
+    return;
+  }
+  highConfTargets.forEach((t) => { t.status = "accepted"; });
+  updateProgress();
+  renderTargets();
+  renderFieldList();
+  persistManifest();
+  showToast(`Accepted ${highConfTargets.length} high-confidence field(s) on Page ${pno}.`);
+}
+
 function nextPendingTarget() { const queue = filteredTargets().filter((target) => !isReviewed(target)); if (!queue.length) { showToast("Everything is reviewed."); return; } const index = queue.findIndex((target) => state.target && target.id === state.target.id); selectTarget(queue[(index + 1) % queue.length]); }
 function prevPendingTarget() { const queue = filteredTargets().filter((target) => !isReviewed(target)); if (!queue.length) { showToast("Everything is reviewed."); return; } const index = queue.findIndex((target) => state.target && target.id === state.target.id); selectTarget(queue[(index - 1 + queue.length) % queue.length]); }
 function toggleRejectCurrent() { const target = currentTarget(); if (!target) return; const restoring = target.status === "rejected"; target.status = restoring ? "pending" : "rejected"; state.filter = restoring ? "all" : "rejected"; renderAll(); selectTarget(target); persistManifest(); }
@@ -393,8 +496,16 @@ document.addEventListener("keydown", (event) => {
   else if (event.key === "k") { event.preventDefault(); prevPendingTarget(); }
   else if (event.key === "a") { event.preventDefault(); const target = currentTarget(); if (target && commitTarget(target, undefined)) nextPendingTarget(); }
   else if (event.key === "x") { event.preventDefault(); toggleRejectCurrent(); }
+  else if (event.key === "r") { event.preventDefault(); cycleFieldType(); }
+  else if (event.key === "ArrowUp") { event.preventDefault(); nudgeTarget(0, event.shiftKey ? -5 : -1); }
+  else if (event.key === "ArrowDown") { event.preventDefault(); nudgeTarget(0, event.shiftKey ? 5 : 1); }
+  else if (event.key === "ArrowLeft") { event.preventDefault(); nudgeTarget(event.shiftKey ? -5 : -1, 0); }
+  else if (event.key === "ArrowRight") { event.preventDefault(); nudgeTarget(event.shiftKey ? 5 : 1, 0); }
+  else if (event.key === "[") { event.preventDefault(); jumpPage(-1); }
+  else if (event.key === "]") { event.preventDefault(); jumpPage(1); }
+  else if (event.key === "Enter") { event.preventDefault(); focusInlineEditor(); }
   else if (event.key === "Escape") { if (state.drawMode) { setDrawMode(false); } toggleShortcutsPopover(false); }
-  else if (event.key === "?") { event.preventDefault(); toggleShortcutsPopover(); showToast("j: next unreviewed · a: accept and continue · x: reject/restore"); }
+  else if (event.key === "?") { event.preventDefault(); toggleShortcutsPopover(); showToast("j/k: navigate · a: accept · x: reject · r: type · arrows: nudge"); }
 });
 function renderAll() { if (!state.session) return; updateProgress(); renderPages(); renderCanvas(); renderFieldFilters(); if (currentTarget()) selectTarget(currentTarget()); }
 
@@ -407,6 +518,8 @@ $("toggle-labels")?.addEventListener("click", () => {
   $("toggle-labels").setAttribute("aria-pressed", String(state.showAllLabels));
   renderTargets();
 });
+$("batch-accept-page")?.addEventListener("click", () => batchAcceptPage(state.page));
+$("batch-accept-high-conf")?.addEventListener("click", () => batchAcceptHighConfidence(state.page));
 $("shortcuts-button")?.addEventListener("click", () => toggleShortcutsPopover());
 $("close-shortcuts")?.addEventListener("click", () => toggleShortcutsPopover(false));
 $("reset-session")?.addEventListener("click", () => {

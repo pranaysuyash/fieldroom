@@ -107,3 +107,26 @@ def test_browser_exposes_review_governance_links_and_session_reset():
     assert "openConditionalEditor" in APP
     assert "ctx.clearRect(0, 0, canvas.width, canvas.height)" in APP
 
+
+def test_browser_keyboard_triage_shortcuts_cover_nudge_cycle_and_page_jump():
+    assert "nudgeTarget" in APP
+    assert 'event.key === "r"' in APP
+    assert "cycleFieldType" in APP
+    assert 'event.key === "ArrowUp"' in APP
+    assert 'event.key === "ArrowDown"' in APP
+    assert 'event.key === "ArrowLeft"' in APP
+    assert 'event.key === "ArrowRight"' in APP
+    assert 'event.key === "["' in APP
+    assert 'event.key === "]"' in APP
+    assert 'event.key === "Enter"' in APP
+    assert "focusInlineEditor" in APP
+
+
+def test_browser_batch_review_operations_support_page_and_confidence_bulk_actions():
+    html = (ROOT / "browser" / "index.html").read_text(encoding="utf-8")
+    assert 'id="batch-accept-page"' in html
+    assert 'id="batch-accept-high-conf"' in html
+    assert "batchAcceptPage" in APP
+    assert "batchAcceptHighConfidence" in APP
+
+

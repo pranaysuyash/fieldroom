@@ -325,7 +325,11 @@ def test_stale_revision_replay_records_no_second_receipt():
 def test_active_content_is_quarantined_with_operator_visible_reason():
     writer = PdfWriter()
     writer.add_blank_page(width=612, height=792)
-    writer.add_js("app.alert(1);")
+    try:
+        from pypdf.actions import JavaScript
+        writer.add_open_action(JavaScript("app.alert(1);"))
+    except (ImportError, AttributeError):
+        writer.add_js("app.alert(1);")
     buffer = io.BytesIO()
     writer.write(buffer)
     buffer.seek(0)

@@ -40,11 +40,11 @@ def _page_widgets(writer: PdfWriter):
 def _set_choice(writer: PdfWriter, field: FieldSpec, value: Any) -> bool:
     options = field.options or [{"value": "selected"}]
     if isinstance(value, bool):
-        selected = {str(options[0]["value"])} if value and options else set()
+        selected = {str(options[0]["value"]).lower(), str(options[0].get("label", "")).lower()} if value and options else set()
     elif isinstance(value, str):
-        selected = {str(value)}
+        selected = {str(value).lower(), str(value)}
     else:
-        selected = {str(v) for v in (value or [])}
+        selected = {str(v).lower() for v in (value or [])} | {str(v) for v in (value or [])}
     matched = False
     for _, annotation, parent in _page_widgets(writer):
         parent_name = str(parent.get("/T", ""))
@@ -55,7 +55,9 @@ def _set_choice(writer: PdfWriter, field: FieldSpec, value: Any) -> bool:
             parent[NameObject("/V")] = NameObject("/Off")
             for index, child_ref in enumerate(kids):
                 child = child_ref.get_object()
-                is_selected = index < len(options) and str(options[index]["value"]) in selected
+                opt_val = str(options[index]["value"]).lower() if index < len(options) else ""
+                opt_lbl = str(options[index].get("label", "")).lower() if index < len(options) else ""
+                is_selected = index < len(options) and (opt_val in selected or opt_lbl in selected)
                 child[NameObject("/AS")] = NameObject("/Yes" if is_selected else "/Off")
                 if is_selected:
                     parent[NameObject("/V")] = NameObject("/Yes")
@@ -66,7 +68,9 @@ def _set_choice(writer: PdfWriter, field: FieldSpec, value: Any) -> bool:
                 index = int(name.rsplit("_", 1)[-1])
             except ValueError:
                 index = -1
-            is_selected = index >= 0 and index < len(options) and str(options[index]["value"]) in selected
+            opt_val = str(options[index]["value"]).lower() if 0 <= index < len(options) else ""
+            opt_lbl = str(options[index].get("label", "")).lower() if 0 <= index < len(options) else ""
+            is_selected = 0 <= index < len(options) and (opt_val in selected or opt_lbl in selected)
             annotation[NameObject("/AS")] = NameObject("/Yes" if is_selected else "/Off")
             annotation[NameObject("/V")] = NameObject("/Yes" if is_selected else "/Off")
             matched = matched or is_selected
